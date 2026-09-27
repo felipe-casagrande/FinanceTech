@@ -2,7 +2,7 @@
 
 A aplicação **Finance Tech** é um Gerenciador Financeiro Pessoal desenvolvido como Progressive Web App (PWA). O sistema permite que os usuários controlem suas finanças de forma simples e intuitiva, realizando o cadastro, edição, exclusão e categorização de receitas e despesas com cálculo de saldo automático e suporte a funcionamento offline.
 
-> 📌 **Projeto Acadêmico:** Práticas Extensionistas Integradoras III — Universidade de Vassouras.
+> 📌 **Projeto Acadêmico:** Práticas Extensionistas Integradoras 4 — Universidade de Vassouras.
 
 ---
 
@@ -10,12 +10,12 @@ A aplicação **Finance Tech** é um Gerenciador Financeiro Pessoal desenvolvido
 
 De acordo com os Requisitos Funcionais (RF) e Regras de Negócio (RN) do projeto:
 
-* **Dashboard em Tempo Real (RF06, RF09):** Exibe o resumo do saldo atual ($Saldo = Receitas - Despesas$), total de entradas, total de saídas e visualização rápida dos últimos lançamentos.
-* **Gestão de Receitas e Despesas (RF01, RF02, RF03, RF04):** Permite cadastrar, editar e excluir movimentações financeiras.
-* **Categorização (RF05):** Associação de movimentações a categorias predefinidas.
-* **Histórico e Filtros (RF07, RF08):** Consulta detalhada de todas as transações com filtragem por categoria.
-* **Validação de Negócio (RN01, RN02, RN04, RN05):** Lançamentos com valores estritamente maiores que zero, datas válidas e remoção de excluídos dos cálculos.
-* **Suporte PWA & Offline (RNF06):** Instalável em dispositivos móveis e desktops, armazenando os dados localmente via `localStorage` e suporte a Service Worker.
+* **Dashboard em Tempo Real:** Exibe o resumo do saldo atual ($Saldo = Receitas - Despesas$), total de entradas, total de saídas e visualização rápida dos últimos lançamentos.
+* **Gestão de Receitas e Despesas :** Permite cadastrar, editar e excluir movimentações financeiras.
+* **Categorização:** Associação de movimentações a categorias predefinidas.
+* **Histórico e Filtros:** Consulta detalhada de todas as transações com filtragem por categoria.
+* **Validação de Negócio:** Lançamentos com valores estritamente maiores que zero, datas válidas e remoção de excluídos dos cálculos.
+* **Suporte PWA & Offline: ** Instalável em dispositivos móveis e desktops, armazenando os dados localmente via `localStorage` e suporte a Service Worker.
 
 ---
 
