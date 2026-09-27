@@ -2,7 +2,7 @@
 
 A aplicação **Finance Tech** é um Gerenciador Financeiro Pessoal desenvolvido como Progressive Web App (PWA). O sistema permite que os usuários controlem suas finanças de forma simples e intuitiva, realizando o cadastro, edição, exclusão e categorização de receitas e despesas com cálculo de saldo automático e suporte a funcionamento offline.
 
-> 📌 **Projeto Acadêmico:** Práticas Extensionistas Integradoras III — Universidade de Vassouras.
+> 📌 **Projeto Acadêmico:** Práticas Extensionistas Integradoras 4 — Universidade de Vassouras.
 
 ---
 
