@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finance Tech - Gerenciador Financeiro</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+
+  <!-- Menu Lateral de Navegação -->
+  <aside class="sidebar">
+    <h2>Finance Tech</h2>
+    <nav>
+      <button class="nav-btn active" onclick="trocarTela('dashboard')">Dashboard</button>
+      <button class="nav-btn" onclick="trocarTela('receita')">+ Nova Receita</button>
+      <button class="nav-btn" onclick="trocarTela('despesa')">- Nova Despesa</button>
+      <button class="nav-btn" onclick="trocarTela('historico')">Histórico</button>
+    </nav>
+  </aside>
+
+  <!-- Conteúdo Principal -->
+  <main class="main-content">
+
+    <!-- TELA 1: DASHBOARD (RF06, RF09) -->
+    <section id="tela-dashboard" class="tela active">
+      <h1>Resumo Financeiro</h1>
+      <div class="cards-summary">
+        <div class="card saldo">
+          <h3>Saldo Atual</h3>
+          <p id="dash-saldo">R$ 0,00</p>
+        </div>
+        <div class="card receita">
+          <h3>Total de Receitas</h3>
+          <p id="dash-receita">R$ 0,00</p>
+        </div>
+        <div class="card despesa">
+          <h3>Total de Despesas</h3>
+          <p id="dash-despesa">R$ 0,00</p>
+        </div>
+      </div>
+
+      <div class="widget-card margin-top">
+        <h3>Movimentações Recentes</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Tipo</th>
+              <th>Categoria</th>
+              <th>Descrição</th>
+              <th>Valor</th>
+            </tr>
+          </thead>
+          <tbody id="dash-tabela-recente"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TELA 2: CADASTRAR/EDITAR RECEITA (RF01, RF03) -->
+    <section id="tela-receita" class="tela">
+      <h1 id="titulo-form-receita">Cadastrar Nova Receita</h1>
+      <form id="form-receita" class="form-card">
+        <input type="hidden" id="rec-id">
+        <div class="form-group">
+          <label>Valor (R$)</label>
+          <input type="number" id="rec-valor" step="0.01" placeholder="Ex: 2500.00" required>
+        </div>
+        <div class="form-group">
+          <label>Data</label>
+          <input type="date" id="rec-data" required>
+        </div>
+        <div class="form-group">
+          <label>Categoria</label>
+          <select id="rec-categoria">
+            <option value="Salário">Salário</option>
+            <option value="Freelancer">Freelancer</option>
+            <option value="Venda">Venda de Produtos</option>
+            <option value="Outros">Outros</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Descrição</label>
+          <input type="text" id="rec-desc" placeholder="Ex: Salário Mensal">
+        </div>
+        <button type="submit" class="btn btn-green" id="btn-salvar-rec">Salvar Receita</button>
+      </form>
+    </section>
+
+    <!-- TELA 3: CADASTRAR/EDITAR DESPESA (RF02, RF03) -->
+    <section id="tela-despesa" class="tela">
+      <h1 id="titulo-form-despesa">Cadastrar Nova Despesa</h1>
+      <form id="form-despesa" class="form-card">
+        <input type="hidden" id="desp-id">
+        <div class="form-group">
+          <label>Valor (R$)</label>
+          <input type="number" id="desp-valor" step="0.01" placeholder="Ex: 150.00" required>
+        </div>
+        <div class="form-group">
+          <label>Data</label>
+          <input type="date" id="desp-data" required>
+        </div>
+        <div class="form-group">
+          <label>Categoria</label>
+          <select id="desp-categoria">
+            <option value="Alimentação">Alimentação</option>
+            <option value="Moradia">Moradia</option>
+            <option value="Transporte">Transporte</option>
+            <option value="Lazer">Lazer</option>
+            <option value="Compras">Compras</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Descrição</label>
+          <input type="text" id="desp-desc" placeholder="Ex: Supermercado">
+        </div>
+        <button type="submit" class="btn btn-red" id="btn-salvar-desp">Salvar Despesa</button>
+      </form>
+    </section>
+
+    <!-- TELA 4: HISTÓRICO COM FILTRO, EDIÇÃO E EXCLUSÃO (RF03, RF04, RF07, RF08) -->
+    <section id="tela-historico" class="tela">
+      <h1>Histórico de Movimentações</h1>
+      
+      <!-- Filtro (RF08) -->
+      <div class="filter-card">
+        <label>Filtrar por Categoria:</label>
+        <select id="filtro-categoria" onchange="atualizarDados()">
+          <option value="TODAS">Todas as Categorias</option>
+          <option value="Salário">Salário</option>
+          <option value="Freelancer">Freelancer</option>
+          <option value="Alimentação">Alimentação</option>
+          <option value="Moradia">Moradia</option>
+          <option value="Transporte">Transporte</option>
+          <option value="Lazer">Lazer</option>
+          <option value="Compras">Compras</option>
+        </select>
+      </div>
+
+      <div class="history-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Tipo</th>
+              <th>Categoria</th>
+              <th>Descrição</th>
+              <th>Valor</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-historico"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
