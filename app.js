@@ -1,5 +1,5 @@
-// URL da tua API a correr no terminal do VS Code
-const API_URL = 'https://financetech.onrender.com';
+// URL da tua API a correr no Render (com o endpoint de transações garantido)
+const API_URL = 'https://financetech.onrender.com/api/transacoes';
 
 let movimentacoes = [];
 let myLineChart, myBarChart, myTopDespesasChart, myDoughnutDespesaChart, myDoughnutReceitaChart;
@@ -7,28 +7,40 @@ let myLineChart, myBarChart, myTopDespesasChart, myDoughnutDespesaChart, myDough
 function trocarTela(nomeTela) {
   document.querySelectorAll('.tela').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById(`tela-${nomeTela}`).classList.add('active');
+  const telaAlvo = document.getElementById(`tela-${nomeTela}`);
+  if (telaAlvo) telaAlvo.classList.add('active');
   atualizarDados();
 }
 
 async function buscarDadosNoBanco() {
   try {
-    const resposta = await fetch(API_URL);
+    console.log("A contactar a API em:", API_URL);
+    const resposta = await fetch(API_URL, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    
     if (resposta.ok) {
       movimentacoes = await resposta.json();
+      console.log("Dados recebidos com sucesso:", movimentacoes);
     } else {
       console.warn("A API respondeu, mas com erro:", resposta.status);
     }
   } catch (erro) {
-    console.error("FALHA DE LIGAÇÃO: A API está a correr no terminal? Erro completo:", erro);
+    console.error("FALHA DE LIGAÇÃO COM O RENDER. Erro completo:", erro);
   } finally {
-    // Garante que o ecrã desenha os gráficos (mesmo vazios) caso a API falhe, para o site não "bufar"
     renderizarTela();
   }
 }
 
-document.getElementById('form-receita').addEventListener('submit', salvarMovimentacao);
-document.getElementById('form-despesa').addEventListener('submit', salvarMovimentacao);
+// Garante que os formulários existem antes de adicionar os event listeners
+const formReceita = document.getElementById('form-receita');
+const formDespesa = document.getElementById('form-despesa');
+
+if (formReceita) formReceita.addEventListener('submit', salvarMovimentacao);
+if (formDespesa) formDespesa.addEventListener('submit', salvarMovimentacao);
 
 async function salvarMovimentacao(e) {
   e.preventDefault();
@@ -36,10 +48,12 @@ async function salvarMovimentacao(e) {
   const isReceita = formId === 'form-receita';
   const prefixo = isReceita ? 'rec' : 'desp';
   
-  const valor = parseFloat(document.getElementById(`${prefixo}-valor`).value);
+  const valorInput = document.getElementById(`${prefixo}-valor`);
+  const valor = parseFloat(valorInput ? valorInput.value : 0);
   if (valor <= 0) return alert('O valor deve ser maior que zero.');
 
-  const id = document.getElementById(`${prefixo}-id`).value;
+  const idInput = document.getElementById(`${prefixo}-id`);
+  const id = idInput ? idInput.value : '';
   
   const dados = {
     tipo: isReceita ? 'Receita' : 'Despesa',
@@ -70,17 +84,19 @@ async function salvarMovimentacao(e) {
     if (!resposta.ok) {
         const erroDetalhado = await resposta.text();
         console.error("Motivo da recusa do C#:", erroDetalhado);
-        alert(`O C# recusou gravar os dados! Status: ${resposta.status}. Pressiona F12 e vê a aba Console para leres o erro exato.`);
-        return; // Pára aqui, não limpa o formulário
+        alert(`O C# recusou gravar os dados! Status: ${resposta.status}. Erro: ${erroDetalhado}`);
+        return; 
     }
 
     // Se correu bem, limpa o ecrã e volta ao Dashboard
     e.target.reset();
-    document.getElementById(`${prefixo}-id`).value = '';
+    if (idInput) idInput.value = '';
     trocarTela('dashboard');
+    buscarDadosNoBanco();
     
   } catch (erro) {
-    alert('Erro de rede: O teu terminal está parado! Executa o comando "dotnet run" no VS Code para ligar a API.');
+    console.error("Erro de rede ao salvar:", erro);
+    alert('Erro de rede: O servidor no Render pode estar a iniciar (Cold Start). Aguarde alguns segundos e tente novamente.');
   }
 }
 
@@ -96,22 +112,27 @@ async function excluirMovimentacao(id) {
 }
 
 function editarMovimentacao(id) {
-  // Procura o ID em minúsculo (id) ou maiúsculo (Id)
   const m = movimentacoes.find(item => item.id === id || item.Id === id);
   if (!m) return;
 
   const tipoReal = m.tipo || m.Tipo;
   const prefixo = tipoReal === 'Receita' ? 'rec' : 'desp';
   
-  document.getElementById(`${prefixo}-id`).value = m.id || m.Id;
-  document.getElementById(`${prefixo}-valor`).value = m.valor || m.Valor;
+  const idEl = document.getElementById(`${prefixo}-id`);
+  const valEl = document.getElementById(`${prefixo}-valor`);
+  const dataEl = document.getElementById(`${prefixo}-data`);
+  const catEl = document.getElementById(`${prefixo}-categoria`);
+  const descEl = document.getElementById(`${prefixo}-desc`);
+
+  if (idEl) idEl.value = m.id || m.Id;
+  if (valEl) valEl.value = m.valor || m.Valor;
   
   const dataReal = m.data || m.Data || "";
   const dataFormatada = dataReal.includes('T') ? dataReal.split('T')[0] : dataReal; 
-  document.getElementById(`${prefixo}-data`).value = dataFormatada;
+  if (dataEl) dataEl.value = dataFormatada;
   
-  document.getElementById(`${prefixo}-categoria`).value = m.categoria || m.Categoria;
-  document.getElementById(`${prefixo}-desc`).value = m.descricao || m.Descricao;
+  if (catEl) catEl.value = m.categoria || m.Categoria;
+  if (descEl) descEl.value = m.descricao || m.Descricao;
   
   trocarTela(tipoReal.toLowerCase());
 }
@@ -136,7 +157,7 @@ function renderizarTela() {
   const dataInicio = document.getElementById('filtro-data-inicio')?.value;
   const dataFim = document.getElementById('filtro-data-fim')?.value;
 
-  tbodyHistorico.innerHTML = '';
+  if (tbodyHistorico) tbodyHistorico.innerHTML = '';
   if (tbodyRecente) tbodyRecente.innerHTML = '';
 
   const movFiltradas = movimentacoes.filter(m => {
@@ -180,21 +201,23 @@ function renderizarTela() {
       todasDespesas.push(m);
     }
 
-    const row = document.createElement('tr');
-    const dataPtBR = dataSimples ? dataSimples.split('-').reverse().join('/') : '';
-    
-    row.innerHTML = `
-      <td>${dataPtBR}</td>
-      <td style="color: ${tipoReal === 'Receita' ? '#05cd99' : '#ee5d50'}; font-weight: 700;">${tipoReal}</td>
-      <td>${categoriaReal}</td>
-      <td>${descReal}</td>
-      <td>R$ ${valorReal.toFixed(2)}</td>
-      <td>
-        <button class="btn btn-sm btn-edit" onclick="editarMovimentacao(${idReal})">Editar</button>
-        <button class="btn btn-sm btn-delete" onclick="excluirMovimentacao(${idReal})">Excluir</button>
-      </td>
-    `;
-    tbodyHistorico.appendChild(row);
+    if (tbodyHistorico) {
+      const row = document.createElement('tr');
+      const dataPtBR = dataSimples ? dataSimples.split('-').reverse().join('/') : '';
+      
+      row.innerHTML = `
+        <td>${dataPtBR}</td>
+        <td style="color: ${tipoReal === 'Receita' ? '#05cd99' : '#ee5d50'}; font-weight: 700;">${tipoReal}</td>
+        <td>${categoriaReal}</td>
+        <td>${descReal}</td>
+        <td>R$ ${valorReal.toFixed(2)}</td>
+        <td>
+          <button class="btn btn-sm btn-edit" onclick="editarMovimentacao(${idReal})">Editar</button>
+          <button class="btn btn-sm btn-delete" onclick="excluirMovimentacao(${idReal})">Excluir</button>
+        </td>
+      `;
+      tbodyHistorico.appendChild(row);
+    }
   });
 
   const ultimos = [...movimentacoes].reverse().slice(0, 5);
@@ -222,9 +245,13 @@ function renderizarTela() {
   });
 
   const saldo = recTotal - despTotal;
-  document.getElementById('dash-saldo').innerText = `R$ ${saldo.toFixed(2)}`;
-  document.getElementById('dash-receita').innerText = `R$ ${recTotal.toFixed(2)}`;
-  document.getElementById('dash-despesa').innerText = `R$ ${despTotal.toFixed(2)}`;
+  const saldoEl = document.getElementById('dash-saldo');
+  const recEl = document.getElementById('dash-receita');
+  const despEl = document.getElementById('dash-despesa');
+
+  if (saldoEl) saldoEl.innerText = `R$ ${saldo.toFixed(2)}`;
+  if (recEl) recEl.innerText = `R$ ${recTotal.toFixed(2)}`;
+  if (despEl) despEl.innerText = `R$ ${despTotal.toFixed(2)}`;
 
   todasDespesas.sort((a, b) => (b.valor || b.Valor || 0) - (a.valor || a.Valor || 0));
   const top5Despesas = todasDespesas.slice(0, 5);
@@ -313,5 +340,5 @@ function atualizarGraficos(dados) {
   }
 }
 
-// Inicia a aplicação a tentar ir buscar os dados
+// Inicia a aplicação a tentar ir buscar os dados ao carregar
 buscarDadosNoBanco();
