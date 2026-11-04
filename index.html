@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -12,6 +13,72 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+
+  <!-- TELA DE LOGIN E CADASTRO -->
+  <section id="tela-autenticacao" class="auth-container">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <h1>Finance<span>Tech</span></h1>
+        <p>Seu controle financeiro em um só lugar.</p>
+      </div>
+
+      <div class="auth-tabs">
+        <button type="button" id="btn-login-tab" class="auth-tab active"
+          onclick="mostrarFormularioAuth('login')">
+          Entrar
+        </button>
+
+        <button type="button" id="btn-cadastro-tab" class="auth-tab"
+          onclick="mostrarFormularioAuth('cadastro')">
+          Criar conta
+        </button>
+      </div>
+
+      <form id="form-login" class="auth-form">
+        <h2>Bem-vindo de volta!</h2>
+        <p class="auth-description">Entre com seus dados para continuar.</p>
+
+        <div class="form-group">
+          <label for="login-email">E-mail</label>
+          <input type="email" id="login-email" placeholder="seu@email.com" required>
+        </div>
+
+        <div class="form-group">
+          <label for="login-senha">Senha</label>
+          <input type="password" id="login-senha" placeholder="Sua senha" required>
+        </div>
+
+        <button type="submit" class="auth-submit">Entrar na conta</button>
+      </form>
+
+      <form id="form-cadastro" class="auth-form" hidden>
+        <h2>Crie sua conta</h2>
+        <p class="auth-description">Comece a organizar sua vida financeira.</p>
+
+        <div class="form-group">
+          <label for="cadastro-nome">Nome</label>
+          <input type="text" id="cadastro-nome" placeholder="Seu nome" required>
+        </div>
+
+        <div class="form-group">
+          <label for="cadastro-email">E-mail</label>
+          <input type="email" id="cadastro-email" placeholder="seu@email.com" required>
+        </div>
+
+        <div class="form-group">
+          <label for="cadastro-senha">Senha</label>
+          <input type="password" id="cadastro-senha" placeholder="Mínimo de 6 caracteres" minlength="6" required>
+        </div>
+
+        <button type="submit" class="auth-submit">Criar minha conta</button>
+      </form>
+
+      <p id="auth-mensagem" class="auth-mensagem"></p>
+    </div>
+  </section>
+
+  <!-- APLICAÇÃO -->
+  <div id="app-container" hidden>
 
   <!-- TELA DE LOGIN E CADASTRO -->
   <section id="tela-autenticacao" class="auth-container">
@@ -106,7 +173,72 @@
         </button>
       </nav>
     </aside>
+    <aside class="sidebar">
+      <div class="brand">
+        <h2>Finance<span>Tech</span></h2>
+      </div>
 
+      <nav aria-label="Navegação principal">
+        <button class="nav-btn active" type="button" aria-label="Dashboard" onclick="trocarTela('dashboard')">
+          <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>
+          <span class="nav-label">Dashboard</span>
+        </button>
+
+        <button class="nav-btn" type="button" aria-label="Nova Receita" onclick="trocarTela('receita')">
+          <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v8M8 12h8"></path></svg>
+          <span class="nav-label">Nova Receita</span>
+        </button>
+
+        <button class="nav-btn" type="button" aria-label="Nova Despesa" onclick="trocarTela('despesa')">
+          <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v10M8 13l4 4 4-4"></path></svg>
+          <span class="nav-label">Nova Despesa</span>
+        </button>
+
+        <button class="nav-btn" type="button" aria-label="Histórico" onclick="trocarTela('historico')">
+          <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+          <span class="nav-label">Histórico</span>
+        </button>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+
+      <div class="account-bar">
+        <span id="usuario-nome"></span>
+        <button type="button" onclick="sairConta()">Sair</button>
+      </div>
+
+      <section id="tela-dashboard" class="tela active">
+        <header class="page-header">
+          <h1>Resumo Financeiro</h1>
+          <p class="subtitle">Acompanhe os seus rendimentos e gastos através de inteligência de dados</p>
+        </header>
+
+        <div class="cards-summary">
+          <div class="card premium-card saldo">
+            <h3>Saldo Atual</h3>
+            <p id="dash-saldo">R$ 0,00</p>
+          </div>
+
+          <div class="card premium-card receita">
+            <h3>Total de Receitas</h3>
+            <p id="dash-receita">R$ 0,00</p>
+          </div>
+
+          <div class="card premium-card despesa">
+            <h3>Total de Despesas</h3>
+            <p id="dash-despesa">R$ 0,00</p>
+          </div>
+        </div>
+
+        <div class="charts-row margin-top">
+          <div class="widget-card chart-box">
+            <h3>Evolução do Saldo</h3>
+            <div class="canvas-container">
+              <canvas id="lineChart"></canvas>
+            </div>
+          </div>
+        </div>
     <main class="main-content">
 
       <div class="account-bar">
@@ -161,7 +293,37 @@
             </div>
           </div>
         </div>
+        <div class="charts-container margin-top">
+          <div class="widget-card chart-box">
+            <h3>Receitas vs Despesas (Geral)</h3>
+            <div class="canvas-container">
+              <canvas id="barChart"></canvas>
+            </div>
+          </div>
 
+          <div class="widget-card chart-box">
+            <h3>Top 5 Maiores Gastos</h3>
+            <div class="canvas-container">
+              <canvas id="topDespesasChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="charts-container margin-top">
+          <div class="widget-card chart-box">
+            <h3>Despesas por Categoria</h3>
+            <div class="canvas-container">
+              <canvas id="doughnutDespesaChart"></canvas>
+            </div>
+          </div>
+
+          <div class="widget-card chart-box">
+            <h3>Receitas por Categoria</h3>
+            <div class="canvas-container">
+              <canvas id="doughnutReceitaChart"></canvas>
+            </div>
+          </div>
+        </div>
         <div class="charts-container margin-top">
           <div class="widget-card chart-box">
             <h3>Despesas por Categoria</h3>
@@ -196,7 +358,59 @@
           </div>
         </div>
       </section>
+        <div class="widget-card margin-top premium-card">
+          <h3>Movimentações Recentes</h3>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Tipo</th>
+                  <th>Categoria</th>
+                  <th>Descrição</th>
+                  <th>Valor</th>
+                </tr>
+              </thead>
+              <tbody id="dash-tabela-recente"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
 
+      <section id="tela-receita" class="tela">
+        <h1 class="page-header">Cadastrar Nova Receita</h1>
+
+        <form id="form-receita" class="form-card premium-card margin-top">
+          <input type="hidden" id="rec-id">
+
+          <div class="form-group">
+            <label>Valor (R$)</label>
+            <input type="number" id="rec-valor" step="0.01" placeholder="Ex: 2500.00" required>
+          </div>
+
+          <div class="form-group">
+            <label>Data</label>
+            <input type="date" id="rec-data" required>
+          </div>
+
+          <div class="form-group">
+            <label>Categoria</label>
+            <select id="rec-categoria">
+              <option value="Salário">Salário</option>
+              <option value="Freelancer">Freelancer</option>
+              <option value="Venda">Venda de Produtos</option>
+              <option value="Outros">Outros</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Descrição</label>
+            <input type="text" id="rec-desc" placeholder="Ex: Salário Mensal">
+          </div>
+
+          <button type="submit" class="btn btn-green">Salvar Receita</button>
+        </form>
+      </section>
       <section id="tela-receita" class="tela">
         <h1 class="page-header">Cadastrar Nova Receita</h1>
 
@@ -267,7 +481,74 @@
           <button type="submit" class="btn btn-red">Salvar Despesa</button>
         </form>
       </section>
+      <section id="tela-despesa" class="tela">
+        <h1 class="page-header">Cadastrar Nova Despesa</h1>
 
+        <form id="form-despesa" class="form-card premium-card margin-top">
+          <input type="hidden" id="desp-id">
+
+          <div class="form-group">
+            <label>Valor (R$)</label>
+            <input type="number" id="desp-valor" step="0.01" placeholder="Ex: 150.00" required>
+          </div>
+
+          <div class="form-group">
+            <label>Data</label>
+            <input type="date" id="desp-data" required>
+          </div>
+
+          <div class="form-group">
+            <label>Categoria</label>
+            <select id="desp-categoria">
+              <option value="Alimentação">Alimentação</option>
+              <option value="Moradia">Moradia</option>
+              <option value="Transporte">Transporte</option>
+              <option value="Lazer">Lazer</option>
+              <option value="Compras">Compras</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Descrição</label>
+            <input type="text" id="desp-desc" placeholder="Ex: Supermercado">
+          </div>
+
+          <button type="submit" class="btn btn-red">Salvar Despesa</button>
+        </form>
+      </section>
+
+      <section id="tela-historico" class="tela">
+        <h1 class="page-header">Histórico de Movimentações</h1>
+
+        <div class="filter-card premium-card margin-top">
+          <div class="filter-grid">
+            <div class="form-group">
+              <label>Data Início:</label>
+              <input type="date" id="filtro-data-inicio" onchange="atualizarDados()">
+            </div>
+
+            <div class="form-group">
+              <label>Data Fim:</label>
+              <input type="date" id="filtro-data-fim" onchange="atualizarDados()">
+            </div>
+
+            <div class="form-group">
+              <label>Categoria:</label>
+              <select id="filtro-categoria" onchange="atualizarDados()">
+                <option value="TODAS">Todas as Categorias</option>
+                <option value="Salário">Salário</option>
+                <option value="Freelancer">Freelancer</option>
+                <option value="Venda">Venda de Produtos</option>
+                <option value="Outros">Outros</option>
+                <option value="Alimentação">Alimentação</option>
+                <option value="Moradia">Moradia</option>
+                <option value="Transporte">Transporte</option>
+                <option value="Lazer">Lazer</option>
+                <option value="Compras">Compras</option>
+              </select>
+            </div>
+          </div>
+        </div>
       <section id="tela-historico" class="tela">
         <h1 class="page-header">Histórico de Movimentações</h1>
 
@@ -323,6 +604,29 @@
     </main>
   </div>
 
+        <div class="history-card premium-card margin-top">
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Tipo</th>
+                  <th>Categoria</th>
+                  <th>Descrição</th>
+                  <th>Valor</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-historico"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>
+
