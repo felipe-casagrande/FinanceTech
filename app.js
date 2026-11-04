@@ -1,5 +1,5 @@
 // URL da tua API a correr no terminal do VS Code
-const API_URL = 'http://127.0.0.1:5079/api/Transacao'; 
+const API_URL = 'https://financetech.onrender.com';
 
 let movimentacoes = [];
 let myLineChart, myBarChart, myTopDespesasChart, myDoughnutDespesaChart, myDoughnutReceitaChart;
