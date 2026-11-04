@@ -507,3 +507,189 @@ td {
     padding-right: 12px;
   }
 }
+
+/* ==============================
+   AUTENTICAÇÃO
+============================== */
+
+[hidden] {
+  display: none !important;
+}
+
+body:has(.auth-container:not([hidden])) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  background: #f4f7fe;
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 440px;
+  margin: auto;
+}
+
+.auth-card {
+  width: 100%;
+  background: #ffffff;
+  padding: 36px;
+  border-radius: 22px;
+  box-shadow: 0 10px 40px rgba(43, 54, 116, 0.10);
+}
+
+.auth-brand {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.auth-brand h1 {
+  color: #2b3674;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.auth-brand h1 span {
+  color: #4318ff;
+}
+
+.auth-brand p {
+  color: #a3aed1;
+  margin-top: 8px;
+  font-size: 0.95rem;
+}
+
+.auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 5px;
+  background: #f4f7fe;
+  border-radius: 12px;
+  margin-bottom: 28px;
+}
+
+.auth-tab {
+  border: none;
+  padding: 12px;
+  border-radius: 9px;
+  background: transparent;
+  color: #a3aed1;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.auth-tab.active {
+  background: #4318ff;
+  color: #ffffff;
+}
+
+.auth-form h2 {
+  color: #2b3674;
+  font-size: 1.35rem;
+  margin-bottom: 7px;
+}
+
+.auth-description {
+  color: #a3aed1;
+  font-size: 0.9rem;
+  margin-bottom: 24px;
+}
+
+.auth-form .form-group {
+  margin-bottom: 18px;
+}
+
+.auth-form .form-group input {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #e0e5f2;
+  border-radius: 11px;
+  background: #f4f7fe;
+  color: #2b3674;
+  font-size: 16px;
+  outline: none;
+}
+
+.auth-form .form-group input:focus {
+  border-color: #4318ff;
+  background: #ffffff;
+}
+
+.auth-submit {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 11px;
+  background: #4318ff;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.auth-submit:hover {
+  opacity: 0.85;
+}
+
+.auth-mensagem {
+  min-height: 20px;
+  margin-top: 18px;
+  text-align: center;
+  color: #ee5d50;
+  font-size: 0.9rem;
+}
+
+/* ==============================
+   BARRA DA CONTA
+============================== */
+
+.account-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-bottom: 25px;
+  color: #2b3674;
+  font-weight: 600;
+}
+
+.account-bar button {
+  border: none;
+  border-radius: 9px;
+  padding: 9px 16px;
+  background: #ee5d50;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.account-bar button:hover {
+  opacity: 0.85;
+}
+
+/* ==============================
+   AJUSTES PARA CELULAR
+============================== */
+
+@media (max-width: 600px) {
+  body:has(.auth-container:not([hidden])) {
+    padding: 16px;
+  }
+
+  .auth-card {
+    padding: 26px 20px;
+    border-radius: 18px;
+  }
+
+  .auth-brand h1 {
+    font-size: 1.8rem;
+  }
+
+  .account-bar {
+    margin-bottom: 20px;
+  }
+}
