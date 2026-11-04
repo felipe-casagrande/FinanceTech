@@ -693,3 +693,24 @@ body:has(.auth-container:not([hidden])) {
     margin-bottom: 20px;
   }
 }
+
+/* Corrige o layout do painel no computador */
+#app-container {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+}
+
+/* Mantém o layout adaptado para celular */
+@media (max-width: 900px) {
+    #app-container {
+        display: block;
+        width: 100%;
+        min-height: 100vh;
+    }
+}
+
+#app-container[hidden] {
+    display: none !important;
+}
+
