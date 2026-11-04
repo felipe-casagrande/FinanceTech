@@ -1,0 +1,12 @@
+# .NET / Visual Studio
+[Bb]in/
+[Oo]bj/
+.vs/
+*.user
+*.suo
+*.userprefs
+appsettings.Development.json
+
+# Sistema operacional
+.DS_Store
+Thumbs.db

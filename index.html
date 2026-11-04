@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finance Tech - Premium</title>
+  <link rel="icon" type="image/png" href="./icone.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="brand">
+      <h2>Finance<span>Tech</span></h2>
+    </div>
+    <nav>
+      <button class="nav-btn active" onclick="trocarTela('dashboard')">Dashboard</button>
+      <button class="nav-btn" onclick="trocarTela('receita')">Nova Receita</button>
+      <button class="nav-btn" onclick="trocarTela('despesa')">Nova Despesa</button>
+      <button class="nav-btn" onclick="trocarTela('historico')">Histórico</button>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    
+    <section id="tela-dashboard" class="tela active">
+      <header class="page-header">
+        <h1>Resumo Financeiro</h1>
+        <p class="subtitle">Acompanhe os seus rendimentos e gastos através de inteligência de dados</p>
+      </header>
+      
+      <div class="cards-summary">
+        <div class="card premium-card saldo">
+          <h3>Saldo Atual</h3>
+          <p id="dash-saldo">R$ 0,00</p>
+        </div>
+        <div class="card premium-card receita">
+          <h3>Total de Receitas</h3>
+          <p id="dash-receita">R$ 0,00</p>
+        </div>
+        <div class="card premium-card despesa">
+          <h3>Total de Despesas</h3>
+          <p id="dash-despesa">R$ 0,00</p>
+        </div>
+      </div>
+      
+      <div class="charts-row margin-top">
+        <div class="widget-card chart-box">
+          <h3>Evolução do Saldo</h3>
+          <div class="canvas-container">
+            <canvas id="lineChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="charts-container margin-top">
+        <div class="widget-card chart-box">
+          <h3>Receitas vs Despesas (Geral)</h3>
+          <div class="canvas-container">
+            <canvas id="barChart"></canvas>
+          </div>
+        </div>
+        <div class="widget-card chart-box">
+          <h3>Top 5 Maiores Gastos</h3>
+          <div class="canvas-container">
+            <canvas id="topDespesasChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="charts-container margin-top">
+        <div class="widget-card chart-box">
+          <h3>Despesas por Categoria</h3>
+          <div class="canvas-container">
+            <canvas id="doughnutDespesaChart"></canvas>
+          </div>
+        </div>
+        <div class="widget-card chart-box">
+          <h3>Receitas por Categoria</h3>
+          <div class="canvas-container">
+            <canvas id="doughnutReceitaChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="widget-card margin-top premium-card">
+        <h3>Movimentações Recentes</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Tipo</th>
+              <th>Categoria</th>
+              <th>Descrição</th>
+              <th>Valor</th>
+            </tr>
+          </thead>
+          <tbody id="dash-tabela-recente"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="tela-receita" class="tela">
+      <h1 class="page-header">Cadastrar Nova Receita</h1>
+      <form id="form-receita" class="form-card premium-card margin-top">
+        <input type="hidden" id="rec-id">
+        <div class="form-group">
+          <label>Valor (R$)</label>
+          <input type="number" id="rec-valor" step="0.01" placeholder="Ex: 2500.00" required>
+        </div>
+        <div class="form-group">
+          <label>Data</label>
+          <input type="date" id="rec-data" required>
+        </div>
+        <div class="form-group">
+          <label>Categoria</label>
+          <select id="rec-categoria">
+            <option value="Salário">Salário</option>
+            <option value="Freelancer">Freelancer</option>
+            <option value="Venda">Venda de Produtos</option>
+            <option value="Outros">Outros</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Descrição</label>
+          <input type="text" id="rec-desc" placeholder="Ex: Salário Mensal">
+        </div>
+        <button type="submit" class="btn btn-green">Salvar Receita</button>
+      </form>
+    </section>
+
+    <section id="tela-despesa" class="tela">
+      <h1 class="page-header">Cadastrar Nova Despesa</h1>
+      <form id="form-despesa" class="form-card premium-card margin-top">
+        <input type="hidden" id="desp-id">
+        <div class="form-group">
+          <label>Valor (R$)</label>
+          <input type="number" id="desp-valor" step="0.01" placeholder="Ex: 150.00" required>
+        </div>
+        <div class="form-group">
+          <label>Data</label>
+          <input type="date" id="desp-data" required>
+        </div>
+        <div class="form-group">
+          <label>Categoria</label>
+          <select id="desp-categoria">
+            <option value="Alimentação">Alimentação</option>
+            <option value="Moradia">Moradia</option>
+            <option value="Transporte">Transporte</option>
+            <option value="Lazer">Lazer</option>
+            <option value="Compras">Compras</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Descrição</label>
+          <input type="text" id="desp-desc" placeholder="Ex: Supermercado">
+        </div>
+        <button type="submit" class="btn btn-red">Salvar Despesa</button>
+      </form>
+    </section>
+
+    <section id="tela-historico" class="tela">
+      <h1 class="page-header">Histórico de Movimentações</h1>
+      
+      <div class="filter-card premium-card margin-top">
+        <div class="filter-grid">
+          <div class="form-group">
+            <label>Data Início:</label>
+            <input type="date" id="filtro-data-inicio" onchange="atualizarDados()">
+          </div>
+          <div class="form-group">
+            <label>Data Fim:</label>
+            <input type="date" id="filtro-data-fim" onchange="atualizarDados()">
+          </div>
+          <div class="form-group">
+            <label>Categoria:</label>
+            <select id="filtro-categoria" onchange="atualizarDados()">
+              <option value="TODAS">Todas as Categorias</option>
+              <option value="Salário">Salário</option>
+              <option value="Freelancer">Freelancer</option>
+              <option value="Venda">Venda de Produtos</option>
+              <option value="Outros">Outros</option>
+              <option value="Alimentação">Alimentação</option>
+              <option value="Moradia">Moradia</option>
+              <option value="Transporte">Transporte</option>
+              <option value="Lazer">Lazer</option>
+              <option value="Compras">Compras</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="history-card premium-card margin-top">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Tipo</th>
+              <th>Categoria</th>
+              <th>Descrição</th>
+              <th>Valor</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-historico"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+  
+  <script src="app.js"></script>
+</body>
+</html>
