@@ -35,7 +35,7 @@ namespace FinanceTechApi.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("Data")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Descricao")
                         .IsRequired()
