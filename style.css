@@ -714,3 +714,77 @@ body:has(.auth-container:not([hidden])) {
     display: none !important;
 }
 
+
+/* =================================
+   CORREÇÃO DO LAYOUT DESKTOP
+================================= */
+
+@media (min-width: 901px) {
+
+    body {
+        display: block !important;
+        width: 100%;
+        min-height: 100vh;
+        margin: 0;
+    }
+
+    #app-container {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: stretch;
+        width: 100%;
+        min-height: 100vh;
+    }
+
+    #app-container .sidebar {
+        display: flex;
+        flex: 0 0 260px;
+        width: 260px;
+        min-height: 100vh;
+        height: auto;
+        flex-direction: column;
+        position: relative;
+    }
+
+    #app-container .brand {
+        display: block;
+    }
+
+    #app-container .sidebar nav {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        gap: 12px;
+    }
+
+    #app-container .nav-btn {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        padding: 14px 18px;
+        font-size: 1rem;
+    }
+
+    #app-container .nav-icon {
+        display: none;
+    }
+
+    #app-container .main-content {
+        display: block;
+        flex: 1 1 0;
+        width: 0;
+        min-width: 0;
+        max-width: none;
+        margin: 0;
+        padding: 40px;
+        overflow-x: hidden;
+    }
+
+    #app-container .charts-container {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #app-container .cards-summary {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
