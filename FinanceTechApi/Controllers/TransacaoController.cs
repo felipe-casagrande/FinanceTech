@@ -6,7 +6,7 @@ using FinanceTechApi.Models;
 namespace FinanceTechApi.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/transacoes")] // <-- Forçamos aqui a rota exata no plural
     public class TransacaoController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -16,6 +16,7 @@ namespace FinanceTechApi.Controllers
             _context = context;
         }
 
+        // ... (o resto dos métodos continua igualzinho)
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] DateTime? dataInicio, [FromQuery] DateTime? dataFim, [FromQuery] string? categoria)
         {

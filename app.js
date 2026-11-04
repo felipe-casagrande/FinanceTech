@@ -1,5 +1,5 @@
 // URL da tua API a correr no Render (com o endpoint de transações garantido)
-const API_URL = 'https://financetech.onrender.com/api/transacoe';
+const API_URL = 'https://financetech.onrender.com/api/transacoes';
 
 let movimentacoes = [];
 let myLineChart, myBarChart, myTopDespesasChart, myDoughnutDespesaChart, myDoughnutReceitaChart;
