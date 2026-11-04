@@ -6,7 +6,7 @@ using FinanceTechApi.Models;
 namespace FinanceTechApi.Controllers
 {
     [ApiController]
-    [Route("api/transacoes")] // <-- Forçamos aqui a rota exata no plural
+    [Route("api/[controller]")]
     public class TransacaoController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -16,23 +16,29 @@ namespace FinanceTechApi.Controllers
             _context = context;
         }
 
-        // ... (o resto dos métodos continua igualzinho)
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] DateTime? dataInicio, [FromQuery] DateTime? dataFim, [FromQuery] string? categoria)
         {
-            var query = _context.Transacoes.AsQueryable();
+            try
+            {
+                var query = _context.Transacoes.AsQueryable();
 
-            if (dataInicio.HasValue) 
-                query = query.Where(t => t.Data >= dataInicio);
-            
-            if (dataFim.HasValue) 
-                query = query.Where(t => t.Data <= dataFim);
-            
-            if (!string.IsNullOrEmpty(categoria) && categoria != "TODAS") 
-                query = query.Where(t => t.Categoria == categoria);
+                if (dataInicio.HasValue) 
+                    query = query.Where(t => t.Data >= dataInicio);
+                
+                if (dataFim.HasValue) 
+                    query = query.Where(t => t.Data <= dataFim);
+                
+                if (!string.IsNullOrEmpty(categoria) && categoria != "TODAS") 
+                    query = query.Where(t => t.Categoria == categoria);
 
-            var resultado = await query.ToListAsync();
-            return Ok(resultado);
+                var resultado = await query.ToListAsync();
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { erro = ex.Message, detalhe = ex.InnerException?.Message });
+            }
         }
 
         [HttpPost]
