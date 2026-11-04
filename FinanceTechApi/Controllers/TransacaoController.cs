@@ -1,12 +1,15 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
 using FinanceTechApi.Data;
 using FinanceTechApi.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace FinanceTechApi.Controllers
 {
     [ApiController]
     [Route("api/transacoes")]
+    [Authorize]
     public class TransacaoController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -16,70 +19,116 @@ namespace FinanceTechApi.Controllers
             _context = context;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] DateTime? dataInicio, [FromQuery] DateTime? dataFim, [FromQuery] string? categoria)
+        private int ObterUsuarioId()
         {
-            try
-            {
-                var query = _context.Transacoes.AsQueryable();
+            string? id = User.FindFirst(
+                JwtRegisteredClaimNames.Sub
+            )?.Value;
 
-                if (dataInicio.HasValue) 
-                    query = query.Where(t => t.Data >= dataInicio);
-                
-                if (dataFim.HasValue) 
-                    query = query.Where(t => t.Data <= dataFim);
-                
-                if (!string.IsNullOrEmpty(categoria) && categoria != "TODAS") 
-                    query = query.Where(t => t.Categoria == categoria);
+            return int.Parse(id!);
+        }
 
-                var resultado = await query.ToListAsync();
-                return Ok(resultado);
-            }
-            catch (Exception ex)
+        [HttpGet]
+        public async Task<IActionResult> Get(
+            DateTime? dataInicio,
+            DateTime? dataFim,
+            string? categoria)
+        {
+            int usuarioId = ObterUsuarioId();
+
+            var query = _context.Transacoes
+                .Where(t => t.UsuarioId == usuarioId);
+
+            if (dataInicio.HasValue)
             {
-                return StatusCode(500, new { erro = ex.Message, detalhe = ex.InnerException?.Message });
+                query = query.Where(
+                    t => t.Data >= dataInicio.Value
+                );
             }
+
+            if (dataFim.HasValue)
+            {
+                query = query.Where(
+                    t => t.Data <= dataFim.Value
+                );
+            }
+
+            if (!string.IsNullOrWhiteSpace(categoria))
+            {
+                query = query.Where(
+                    t => t.Categoria == categoria
+                );
+            }
+
+            var transacoes = await query
+                .OrderByDescending(t => t.Data)
+                .ToListAsync();
+
+            return Ok(transacoes);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CriarTransacao(Transacao transacao)
+        public async Task<IActionResult> Post(Transacao transacao)
         {
-            if (transacao.Valor <= 0) return BadRequest("O valor deve ser maior que zero.");
+            int usuarioId = ObterUsuarioId();
+
+            transacao.UsuarioId = usuarioId;
 
             _context.Transacoes.Add(transacao);
+
             await _context.SaveChangesAsync();
+
             return Ok(transacao);
         }
 
-        // NOVO: Método PUT para atualizar registos existentes
         [HttpPut("{id}")]
-        public async Task<IActionResult> AtualizarTransacao(int id, Transacao transacao)
+        public async Task<IActionResult> Put(
+            int id,
+            Transacao transacao)
         {
-            if (id != transacao.Id) return BadRequest("O ID da transação não confere.");
+            int usuarioId = ObterUsuarioId();
 
-            var transacaoExistente = await _context.Transacoes.FindAsync(id);
-            if (transacaoExistente == null) return NotFound("Transação não encontrada.");
+            var existente = await _context.Transacoes
+                .FirstOrDefaultAsync(
+                    t => t.Id == id && t.UsuarioId == usuarioId
+                );
 
-            transacaoExistente.Tipo = transacao.Tipo;
-            transacaoExistente.Valor = transacao.Valor;
-            transacaoExistente.Data = transacao.Data;
-            transacaoExistente.Categoria = transacao.Categoria;
-            transacaoExistente.Descricao = transacao.Descricao;
+            if (existente == null)
+            {
+                return NotFound();
+            }
+
+            existente.Tipo = transacao.Tipo;
+            existente.Valor = transacao.Valor;
+            existente.Data = transacao.Data;
+            existente.Categoria = transacao.Categoria;
+            existente.Descricao = transacao.Descricao;
 
             await _context.SaveChangesAsync();
-            return Ok(transacaoExistente);
+
+            return Ok(existente);
         }
 
-        // NOVO: Método DELETE para apagar registos do histórico
         [HttpDelete("{id}")]
-        public async Task<IActionResult> ExcluirTransacao(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var transacao = await _context.Transacoes.FindAsync(id);
-            if (transacao == null) return NotFound("Transação não encontrada.");
+            int usuarioId = ObterUsuarioId();
+
+            var transacao = await _context.Transacoes
+                .FirstOrDefaultAsync(
+                    t => t.Id == id && t.UsuarioId == usuarioId
+                );
+
+            if (transacao == null)
+            {
+                return NotFound();
+            }
 
             _context.Transacoes.Remove(transacao);
+
             await _context.SaveChangesAsync();
-            return Ok(new { mensagem = "Transação excluída com sucesso!" });
+
+            return Ok();
         }
     }
 }
