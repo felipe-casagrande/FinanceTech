@@ -16,11 +16,23 @@
     <div class="brand">
       <h2>Finance<span>Tech</span></h2>
     </div>
-    <nav>
-      <button class="nav-btn active" onclick="trocarTela('dashboard')">Dashboard</button>
-      <button class="nav-btn" onclick="trocarTela('receita')">Nova Receita</button>
-      <button class="nav-btn" onclick="trocarTela('despesa')">Nova Despesa</button>
-      <button class="nav-btn" onclick="trocarTela('historico')">Histórico</button>
+    <nav aria-label="Navegação principal">
+      <button class="nav-btn active" type="button" aria-label="Dashboard" onclick="trocarTela('dashboard')">
+        <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>
+        <span class="nav-label">Dashboard</span>
+      </button>
+      <button class="nav-btn" type="button" aria-label="Nova Receita" onclick="trocarTela('receita')">
+        <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v8M8 12h8"></path></svg>
+        <span class="nav-label">Nova Receita</span>
+      </button>
+      <button class="nav-btn" type="button" aria-label="Nova Despesa" onclick="trocarTela('despesa')">
+        <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v10M8 13l4 4 4-4"></path></svg>
+        <span class="nav-label">Nova Despesa</span>
+      </button>
+      <button class="nav-btn" type="button" aria-label="Histórico" onclick="trocarTela('historico')">
+        <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+        <span class="nav-label">Histórico</span>
+      </button>
     </nav>
   </aside>
 
@@ -88,18 +100,20 @@
 
       <div class="widget-card margin-top premium-card">
         <h3>Movimentações Recentes</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Tipo</th>
-              <th>Categoria</th>
-              <th>Descrição</th>
-              <th>Valor</th>
-            </tr>
-          </thead>
-          <tbody id="dash-tabela-recente"></tbody>
-        </table>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Tipo</th>
+                <th>Categoria</th>
+                <th>Descrição</th>
+                <th>Valor</th>
+              </tr>
+            </thead>
+            <tbody id="dash-tabela-recente"></tbody>
+          </table>
+        </div>
       </div>
     </section>
 
@@ -194,19 +208,21 @@
       </div>
 
       <div class="history-card premium-card margin-top">
-        <table>
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Tipo</th>
-              <th>Categoria</th>
-              <th>Descrição</th>
-              <th>Valor</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody id="tabela-historico"></tbody>
-        </table>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Tipo</th>
+                <th>Categoria</th>
+                <th>Descrição</th>
+                <th>Valor</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tabela-historico"></tbody>
+          </table>
+        </div>
       </div>
     </section>
   </main>
