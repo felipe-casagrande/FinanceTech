@@ -6,7 +6,7 @@ using FinanceTechApi.Models;
 namespace FinanceTechApi.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/[transacoes]")]
     public class TransacaoController : ControllerBase
     {
         private readonly AppDbContext _context;
