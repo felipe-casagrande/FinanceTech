@@ -788,3 +788,7 @@ body:has(.auth-container:not([hidden])) {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
+#app-container[hidden],
+#tela-autenticacao[hidden] {
+    display: none !important;
+}
