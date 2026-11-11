@@ -1205,3 +1205,25 @@ body:has(.auth-container:not([hidden])) {
 .account-bar .btn-sair-discreto:hover { background: #1d3b60; border-color: #4d86b8; opacity: 1; }
 .account-bar .btn-sair-discreto:focus-visible { outline: 2px solid #38bdf8; outline-offset: 3px; }
 .account-bar .btn-sair-discreto svg { flex-shrink: 0; }
+
+/* Ajuste final: painel ocupa toda a largura útil no desktop. */
+@media (min-width: 901px) {
+  #app-container .main-content {
+    max-width: none;
+    width: 0;
+    flex: 1 1 0;
+    margin: 0;
+    padding: clamp(24px, 2.5vw, 44px);
+  }
+  #app-container .cards-summary {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  #app-container .charts-container {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 901px) and (max-width: 1250px) {
+  #app-container .cards-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
