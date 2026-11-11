@@ -1,12 +1,16 @@
 
-const CACHE_NAME = 'financetech-v5';
+const CACHE_NAME = 'financetech-v100-novo-icone';
 
 const ASSETS = [
   './',
   './index.html',
   './style.css',
   './app.js',
-  './manifest.json'
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png',
+  './apple-touch-icon.png',
+  './favicon-64.png'
 ];
 
 // Instalação e armazenamento dos arquivos

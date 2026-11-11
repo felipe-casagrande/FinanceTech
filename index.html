@@ -7,7 +7,8 @@
 
   <title>Finance Tech - Premium</title>
 
-  <link rel="icon" type="image/png" href="./icone.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="./favicon-64.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
 
@@ -202,6 +203,10 @@
           <span class="nav-label">Nova Despesa</span>
         </button>
 
+        <button class="nav-btn" type="button" onclick="trocarTela('metas')" aria-label="Metas"><svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg><span class="nav-label">Metas</span></button>
+        <button class="nav-btn" type="button" onclick="trocarTela('orcamentos')" aria-label="Orçamentos"><svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg><span class="nav-label">Orçamentos</span></button>
+
+
         <button
           class="nav-btn"
           type="button"
@@ -215,7 +220,6 @@
 
           <span class="nav-label">Histórico</span>
         </button>
-
       </nav>
 
     </aside>
@@ -229,8 +233,9 @@
 
         <span id="usuario-nome"></span>
 
-        <button type="button" onclick="sairConta()">
-          Sair
+        <button type="button" class="btn-sair-discreto" onclick="sairConta()" aria-label="Sair da conta" title="Sair da conta">
+          <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>
+          <span>Sair</span>
         </button>
 
       </div>
@@ -241,14 +246,64 @@
 
         <header class="page-header">
 
-          <h1>Resumo Financeiro</h1>
-
-          <p class="subtitle">
-            Acompanhe os seus rendimentos e gastos através de inteligência de dados
-          </p>
+          <div>
+            <span class="eyebrow">VISÃO GERAL</span>
+            <h1>Resumo Financeiro</h1>
+            <p class="subtitle">Acompanhe suas receitas, despesas e evolução financeira.</p>
+          </div>
 
         </header>
 
+        <!-- FILTROS GERAIS DO DASHBOARD -->
+        <section class="dashboard-filters">
+          <div class="filter-heading">
+            <div>
+              <h2>Filtros do painel</h2>
+              <p>Todos os indicadores e gráficos acompanham estes filtros.</p>
+            </div>
+            <button type="button" class="filter-reset" onclick="limparFiltros()">Limpar filtros</button>
+          </div>
+
+          <div class="dashboard-filter-grid">
+            <div class="filter-field">
+              <label for="filtro-periodo">Período</label>
+              <select id="filtro-periodo" onchange="alterarPeriodo()">
+                <option value="todos">Todo o período</option>
+                <option value="7">Últimos 7 dias</option>
+                <option value="30">Últimos 30 dias</option>
+                <option value="90">Últimos 90 dias</option>
+                <option value="180">Últimos 6 meses</option>
+                <option value="ano">Este ano</option>
+                <option value="personalizado">Personalizado</option>
+              </select>
+            </div>
+
+            <div class="filter-field">
+              <label for="filtro-categoria">Categoria</label>
+              <select id="filtro-categoria" onchange="atualizarDados()">
+                <option value="TODAS">Todas as categorias</option>
+              </select>
+            </div>
+
+            <div class="filter-field filter-date-field" id="campo-data-inicio" hidden>
+              <label for="filtro-data-inicio">Data inicial</label>
+              <input type="date" id="filtro-data-inicio" onchange="atualizarDados()">
+            </div>
+
+            <div class="filter-field filter-date-field" id="campo-data-fim" hidden>
+              <label for="filtro-data-fim">Data final</label>
+              <input type="date" id="filtro-data-fim" onchange="atualizarDados()">
+            </div>
+          </div>
+          <p id="filtro-resumo" class="filter-summary">Exibindo todas as movimentações.</p>
+        </section>
+
+
+        <!-- DESTAQUE FINANCEIRO -->
+        <section class="fintech-hero" aria-label="Visão financeira do período">
+          <div class="hero-topline"><span class="hero-status"><span class="hero-dot"></span> PAINEL FINANCEIRO</span><span class="hero-chip">FinanceTech Analytics</span></div>
+          <div class="hero-heading"><div><p class="hero-label">Resultado do período selecionado</p><strong id="hero-saldo">R$ 0,00</strong><span id="hero-movimentos">Evolução dos lançamentos</span></div><div class="hero-icon" aria-hidden="true">↗</div></div>
+        </section>
 
         <!-- CARDS DE RESUMO -->
         <div class="cards-summary">
@@ -277,6 +332,11 @@
 
           </div>
 
+          <div class="card premium-card economia">
+            <h3>Taxa de economia</h3>
+            <p id="dash-economia">—</p>
+            <span class="card-note">Saldo ÷ receitas do período</span>
+          </div>
         </div>
 
 
@@ -285,7 +345,7 @@
 
           <div class="widget-card chart-box">
 
-            <h3>Evolução do Saldo</h3>
+            <div class="chart-heading"><div><span class="chart-eyebrow">DESTAQUE DO PAINEL</span><h3>Evolução do saldo</h3><p>Acompanhe o saldo acumulado com uma linha azul</p></div><span class="chart-tag">● Saldo</span></div>
 
             <div class="canvas-container">
               <canvas id="lineChart"></canvas>
@@ -296,52 +356,39 @@
         </div>
 
 
-        <!-- GRÁFICOS GERAIS -->
+        <!-- NOVOS PAINÉIS: SEM GRÁFICOS DE BARRAS REPETITIVOS -->
         <div class="charts-container margin-top">
-
-          <div class="widget-card chart-box">
-
-            <h3>Receitas vs Despesas (Geral)</h3>
-
-            <div class="canvas-container">
-              <canvas id="barChart"></canvas>
-            </div>
-
+          <div class="widget-card chart-box insight-panel">
+            <div class="chart-heading"><div><span class="chart-eyebrow">SAÚDE FINANCEIRA</span><h3>Resumo do período</h3><p>Quanto entrou, quanto saiu e quanto sobrou</p></div></div>
+            <div id="resumo-financeiro-visual" class="insight-body"></div>
           </div>
-
-          <div class="widget-card chart-box">
-
-            <h3>Top 5 Maiores Gastos</h3>
-
-            <div class="canvas-container">
-              <canvas id="topDespesasChart"></canvas>
-            </div>
-
+          <div class="widget-card chart-box insight-panel">
+            <div class="chart-heading"><div><span class="chart-eyebrow">ANÁLISE INTELIGENTE</span><h3>Seus gastos em destaque</h3><p>Entenda seu comportamento financeiro</p></div></div>
+            <div id="insights-gastos" class="insight-body"></div>
           </div>
-
         </div>
-
 
         <!-- GRÁFICOS POR CATEGORIA -->
         <div class="charts-container margin-top">
 
           <div class="widget-card chart-box">
 
-            <h3>Despesas por Categoria</h3>
+            <div class="chart-heading"><div><span class="chart-eyebrow">DISTRIBUIÇÃO</span><h3>Despesas por categoria</h3><p>Onde você mais gastou</p></div></div>
 
             <div class="canvas-container">
               <canvas id="doughnutDespesaChart"></canvas>
             </div>
-
+            <div class="category-breakdown" id="detalhes-despesas" aria-live="polite"></div>
           </div>
 
           <div class="widget-card chart-box">
 
-            <h3>Receitas por Categoria</h3>
+            <div class="chart-heading"><div><span class="chart-eyebrow">DISTRIBUIÇÃO</span><h3>Receitas por categoria</h3><p>De onde veio seu dinheiro</p></div></div>
 
             <div class="canvas-container">
               <canvas id="doughnutReceitaChart"></canvas>
             </div>
+            <div class="category-breakdown" id="detalhes-receitas" aria-live="polite"></div>
 
           </div>
 
@@ -353,6 +400,7 @@
 
           <h3>Movimentações Recentes</h3>
 
+          <div class="export-actions"><button class="filter-reset" type="button" onclick="exportarHistoricoCSV()">↓ Exportar histórico filtrado (CSV)</button></div>
           <div class="table-responsive">
 
             <table>
@@ -539,65 +587,18 @@
         </h1>
 
 
-        <!-- FILTROS -->
-        <div class="filter-card premium-card margin-top">
-
-          <div class="filter-grid">
-
-            <div class="form-group">
-
-              <label>Data Início:</label>
-
-              <input
-                type="date"
-                id="filtro-data-inicio"
-                onchange="atualizarDados()"
-              >
-
-            </div>
-
-            <div class="form-group">
-
-              <label>Data Fim:</label>
-
-              <input
-                type="date"
-                id="filtro-data-fim"
-                onchange="atualizarDados()"
-              >
-
-            </div>
-
-            <div class="form-group">
-
-              <label>Categoria:</label>
-
-              <select
-                id="filtro-categoria"
-                onchange="atualizarDados()"
-              >
-
-                <option value="TODAS">Todas as Categorias</option>
-
-                <option value="Salário">Salário</option>
-                <option value="Freelancer">Freelancer</option>
-                <option value="Venda">Venda de Produtos</option>
-                <option value="Outros">Outros</option>
-
-                <option value="Alimentação">Alimentação</option>
-                <option value="Moradia">Moradia</option>
-                <option value="Transporte">Transporte</option>
-                <option value="Lazer">Lazer</option>
-                <option value="Compras">Compras</option>
-
-              </select>
-
-            </div>
-
-          </div>
-
-        </div>
-
+        <section class="dashboard-filters history-filters" aria-label="Filtros do histórico">
+          <div class="filter-heading"><div><h2>Pesquisar movimentações</h2><p>Filtre seu histórico sem alterar os gráficos do Dashboard.</p></div>
+            <button type="button" class="filter-reset" onclick="limparFiltrosHistorico()">Limpar filtros</button></div>
+          <div class="dashboard-filter-grid history-filter-grid">
+            <div class="filter-field"><label for="historico-busca">Buscar descrição</label><input id="historico-busca" type="search" placeholder="Ex.: mercado, salário..." oninput="renderizarHistorico()"></div>
+            <div class="filter-field"><label for="historico-tipo">Tipo</label><select id="historico-tipo" onchange="renderizarHistorico()"><option value="TODOS">Receitas e despesas</option><option value="Receita">Receitas</option><option value="Despesa">Despesas</option></select></div>
+            <div class="filter-field"><label for="historico-categoria">Categoria</label><select id="historico-categoria" onchange="renderizarHistorico()"><option value="TODAS">Todas as categorias</option></select></div>
+            <div class="filter-field"><label for="historico-periodo">Período</label><select id="historico-periodo" onchange="alterarPeriodoHistorico()"><option value="todos">Todo o período</option><option value="7">Últimos 7 dias</option><option value="30">Últimos 30 dias</option><option value="90">Últimos 90 dias</option><option value="180">Últimos 6 meses</option><option value="ano">Este ano</option><option value="personalizado">Personalizado</option></select></div>
+            <div class="filter-field history-custom-date" hidden><label for="historico-inicio">Data inicial</label><input type="date" id="historico-inicio" onchange="renderizarHistorico()"></div>
+            <div class="filter-field history-custom-date" hidden><label for="historico-fim">Data final</label><input type="date" id="historico-fim" onchange="renderizarHistorico()"></div>
+          </div><p class="filter-summary" id="historico-resumo" aria-live="polite"></p>
+        </section>
 
         <!-- TABELA DO HISTÓRICO -->
         <div class="history-card premium-card margin-top">
@@ -629,6 +630,30 @@
 
       </section>
 
+      <section id="tela-metas" class="tela">
+        <header class="page-header"><div><span class="eyebrow">SEUS OBJETIVOS</span><h1>Metas financeiras</h1><p>Planeje e acompanhe seus objetivos de economia.</p></div></header>
+        <div class="widget-card feature-card"><h3>Criar uma meta</h3>
+          <form id="form-meta" class="feature-form">
+            <label>Nome da meta<input name="nome" maxlength="100" required placeholder="Ex.: Reserva de emergência"></label>
+            <label>Valor desejado (R$)<input name="valorAlvo" type="number" min="0.01" step="0.01" required></label>
+            <label>Prazo (opcional)<input name="prazo" type="date"></label>
+            <button type="submit" class="feature-primary">Criar meta</button>
+          </form><p class="feature-message" id="meta-mensagem" role="status"></p>
+        </div>
+        <div id="lista-metas" class="feature-list"></div>
+      </section>
+      <section id="tela-orcamentos" class="tela">
+        <header class="page-header"><div><span class="eyebrow">PLANEJAMENTO</span><h1>Orçamento mensal</h1><p>Defina limites por categoria e acompanhe o que já gastou.</p></div></header>
+        <div class="widget-card feature-card"><h3>Definir limite mensal</h3>
+          <form id="form-orcamento" class="feature-form">
+            <label>Categoria<input name="categoria" list="categorias-orcamento" required maxlength="80" placeholder="Ex.: Alimentação"><datalist id="categorias-orcamento"></datalist></label>
+            <label>Mês<input name="mes" type="month" required></label>
+            <label>Limite (R$)<input name="limite" type="number" min="0.01" step="0.01" required></label>
+            <button type="submit" class="feature-primary">Salvar orçamento</button>
+          </form><p class="feature-message" id="orcamento-mensagem" role="status"></p>
+        </div>
+        <div id="lista-orcamentos" class="feature-list"></div>
+      </section>
     </main>
 
   </div>

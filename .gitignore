@@ -10,3 +10,5 @@ appsettings.Development.json
 # Sistema operacional
 .DS_Store
 Thumbs.db
+# Configurações locais com segredos
+FinanceTechApi/appsettings.Local.json
