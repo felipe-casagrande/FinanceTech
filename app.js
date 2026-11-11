@@ -134,6 +134,7 @@ function sairConta() {
 // ==============================
 
 function trocarTela(nomeTela) {
+  if (nomeTela === 'metas') nomeTela = 'cofrinhos';
   document.querySelectorAll('.tela').forEach(t => t.classList.remove('active'));
 
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -152,7 +153,7 @@ function trocarTela(nomeTela) {
 
   atualizarDados();
   if (nomeTela === 'carteiras' || nomeTela === 'cofrinhos') window.carregarFinanceiroCarteiras?.(nomeTela);
-  if (nomeTela === 'metas') carregarMetas();
+  if (nomeTela === 'cofrinhos') carregarMetasLegadas();
   if (nomeTela === 'orcamentos') carregarOrcamentos();
   if (nomeTela === 'feedback') mensagemFeature('feedback-mensagem', '');
 }
@@ -261,7 +262,7 @@ async function salvarMovimentacao(e) {
       tipo: isReceita ? 'Receita' : 'Despesa',
       valor: valor,
       data: document.getElementById(`${prefixo}-data`).value,
-      categoria: document.getElementById(`${prefixo}-categoria`).value,
+      categoria: document.getElementById(`${prefixo}-categoria`).value.trim(),
       descricao: document.getElementById(`${prefixo}-desc`).value || 'Sem descrição',
       carteiraId: Number(document.getElementById(`${prefixo}-carteira`)?.value || 0)
     };
@@ -1006,7 +1007,7 @@ async function carregarOrcamentos() {
   if (!lista || !token) return;
   const form = document.getElementById('form-orcamento');
   if (form && !form.elements.mes.value) form.elements.mes.value = new Date().toISOString().slice(0,7);
-  const categorias = [...new Set(movimentacoes.filter(m => (m.tipo || m.Tipo) === 'Despesa').map(m => m.categoria || m.Categoria).filter(Boolean))];
+  const categorias = [...new Set([...document.querySelectorAll('#desp-categorias-sugestoes option')].map(o => o.value).concat(movimentacoes.filter(m => (m.tipo || m.Tipo) === 'Despesa').map(m => m.categoria || m.Categoria).filter(Boolean)))].sort((a,b) => a.localeCompare(b,'pt-BR'));
   document.getElementById('categorias-orcamento').innerHTML = categorias.map(c => `<option value="${escaparHtml(c)}"></option>`).join('');
   try {
     const orcamentos = await requisicaoFinanceira(API_ORCAMENTOS);
@@ -1111,4 +1112,50 @@ if (token && usuarioLogado) {
   mostrarAplicativo();
 } else {
   mostrarLogin();
+}
+
+// Metas do sistema antigo são mostradas como cartões no mesmo painel.
+// Conversão exige confirmação e só apaga a meta antiga após reserva bem-sucedida.
+async function carregarMetasLegadas() {
+  const root = document.getElementById('lista-metas-legadas');
+  if (!root || !token) return;
+  try {
+    const metas = await requisicaoFinanceira(API_METAS);
+    root.replaceChildren();
+    if (!Array.isArray(metas)) return;
+    for (const meta of metas) {
+      const article = document.createElement('article'); article.className = 'ft-jar-card ft-jar-legacy';
+      const title = document.createElement('h3'); title.textContent = meta.nome || 'Meta antiga';
+      const label = document.createElement('p'); label.className='ft-jar-wallet'; label.textContent='Meta anterior • ainda não vinculada a uma carteira';
+      const amount = document.createElement('strong'); amount.className='ft-jar-balance'; amount.textContent=BRL_UI(meta.valorAtual||0);
+      const target=Number(meta.valorAlvo||0),current=Number(meta.valorAtual||0);
+      const progress=document.createElement('p');progress.className='ft-jar-progress-label';progress.textContent=target>0?`${Math.min(100,current/target*100).toFixed(0)}% de ${BRL_UI(target)}`:'Sem objetivo definido';
+      article.append(title,label,amount,progress);
+      if(target>0){const track=document.createElement('div');track.className='feature-progress';const fill=document.createElement('span');fill.style.width=`${Math.min(100,Math.max(0,current/target*100))}%`;track.append(fill);article.append(track);}
+      if(meta.prazo){const date=document.createElement('p');date.className='ft-jar-wallet';date.textContent=`Prazo original: ${String(meta.prazo).slice(0,10).split('-').reverse().join('/')}`;article.append(date);}
+      const hint=document.createElement('p');hint.className='ft-jar-legacy-note';hint.textContent='Valor registrado na meta antiga; ainda não está reservado.';article.append(hint);
+      const convert=document.createElement('button');convert.type='button';convert.className='ft-jar-action ft-jar-action-primary';convert.textContent='Converter em cofrinho';
+      convert.addEventListener('click',async()=>{
+        const wallets=await requisicaoFinanceira(`${API_BASE}/carteiras`);
+        if(!Array.isArray(wallets)||!wallets.length){alert('Cadastre uma carteira antes de converter.');return;}
+        const options=wallets.filter(w=>!w.arquivada).map(w=>`${w.id} — ${w.nome} (disponível: ${BRL_UI(w.saldoDisponivel)})`).join('\n');
+        const chosen=prompt(`Em qual carteira reservar a meta "${meta.nome}"? Digite o número da carteira:\n${options}`,String(wallets.find(w=>!w.arquivada)?.id||''));
+        if(chosen===null)return;
+        const wallet=wallets.find(w=>String(w.id)===chosen.trim()&&!w.arquivada);
+        if(!wallet){alert('Carteira inválida.');return;}
+        if(current>Number(wallet.saldoDisponivel??0)){alert(`Não há ${BRL_UI(current)} disponíveis na carteira. A meta antiga foi preservada. Escolha outra carteira ou libere saldo.`);return;}
+        if(!confirm(`Converter "${meta.nome}" para a carteira ${wallet.nome}?\n\n${BRL_UI(current)} serão reservados de verdade e deixarão de estar disponíveis para gastar.\n\nA meta antiga será excluída SOMENTE após a reserva ser concluída. O prazo original não será transferido.`))return;
+        convert.disabled=true;
+        try{
+          const jar=await requisicaoFinanceira(`${API_BASE}/cofrinhos`,{method:'POST',body:JSON.stringify({nome:meta.nome,carteiraId:wallet.id,valorObjetivo:target||null})});
+          if(current>0)await requisicaoFinanceira(`${API_BASE}/cofrinhos/${jar.id}/depositar`,{method:'POST',body:JSON.stringify({valor:current,descricao:'Conversão de meta anterior'})});
+          try{await requisicaoFinanceira(`${API_METAS}/${meta.id}`,{method:'DELETE'});}catch(err){alert('O cofrinho foi criado e reservado, mas a meta antiga não pôde ser excluída. Não converta novamente; revise os registros. '+err.message);await window.carregarFinanceiroCarteiras?.();return;}
+          await window.carregarFinanceiroCarteiras?.();await carregarMetasLegadas();await buscarDadosNoBanco();
+          alert('Meta convertida com sucesso!');
+        }catch(err){alert('Não foi possível concluir a conversão. Se um cofrinho novo apareceu, confira-o antes de tentar novamente. A meta antiga não foi excluída. '+err.message);await window.carregarFinanceiroCarteiras?.();}
+        finally{convert.disabled=false;}
+      });
+      article.append(convert);root.append(article);
+    }
+  } catch (e) { root.textContent = `Não foi possível consultar as metas anteriores: ${e.message}`; }
 }

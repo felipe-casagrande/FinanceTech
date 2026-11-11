@@ -1278,3 +1278,27 @@ body:has(.auth-container:not([hidden])) {
 .ft-wallet-history-table th,.ft-wallet-history-table td{padding:11px 9px;text-align:left;border-bottom:1px solid #294768;color:#eaf6ff;font-size:.84rem}
 .ft-wallet-history-table th{color:#9eb8d8}
 .ft-wallet-history-table .ft-opening-row td{color:#66d9c1;font-weight:700}
+
+/* Cofrinhos unificados: cards compactos, responsivos e formulários sob demanda */
+.ft-jar-header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.ft-jar-new{width:auto!important;min-width:160px;padding:12px 20px}
+.ft-jar-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,310px),1fr));gap:16px;margin-top:18px}
+.ft-jar-grid:empty{display:none}
+.ft-jar-card{background:#10233f;border:1px solid #284463;border-radius:16px;padding:22px;min-width:0;display:flex;flex-direction:column;gap:8px}
+.ft-jar-card h3{color:#f2f8ff;margin:0;font-size:1.13rem}
+.ft-jar-wallet,.ft-jar-caption,.ft-jar-progress-label{color:#9dbbdd;margin:0;font-size:.85rem}
+.ft-jar-caption{margin-top:12px}
+.ft-jar-balance{font-size:1.8rem;color:#61e1b6;line-height:1.25}
+.ft-jar-progress-label{margin-top:8px}
+.ft-jar-card .feature-progress{height:9px;margin-bottom:12px}
+.ft-jar-actions{display:flex;gap:10px;margin-top:auto;padding-top:14px}
+.ft-jar-action{flex:1;cursor:pointer;border:1px solid #39658b;background:#172e4d;color:#f0f7ff;padding:10px 14px;border-radius:9px;font-weight:600}
+.ft-jar-action-primary{background:#2388e9;border-color:#2388e9;color:white}
+.ft-jar-action:disabled{opacity:.55;cursor:wait}
+.ft-jar-legacy{border-style:dashed}
+.ft-jar-legacy-note{font-size:.82rem;color:#e9c47d;margin:8px 0}
+.ft-jar-create{max-width:700px;margin-top:20px}
+.ft-jar-form-heading{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.ft-jar-close{background:none;border:1px solid #365776;border-radius:8px;color:#cde3fb;padding:8px 12px;cursor:pointer}
+#painel-criar-cofrinho[hidden],#painel-movimentar-cofrinho[hidden]{display:none!important}
+@media(max-width:600px){.ft-jar-grid{grid-template-columns:1fr}.ft-jar-new{width:100%!important}.ft-jar-card{padding:17px}}

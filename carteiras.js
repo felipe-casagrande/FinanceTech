@@ -74,17 +74,32 @@
       el.append(details);root.append(el);
     }
   }
+  function button(label,kind,handler){const el=document.createElement('button');el.type='button';el.className='ft-jar-action '+(kind==='primary'?'ft-jar-action-primary':'');el.textContent=label;el.addEventListener('click',handler);return el;}
+  function abrirMovimentacao(id,tipo){
+    const panel=$('painel-movimentar-cofrinho'),form=$('form-movimentacao-cofrinho');if(!panel||!form)return;
+    panel.hidden=false;form.elements.namedItem('cofrinhoId').value=String(id);form.elements.namedItem('tipo').value=tipo;
+    $('titulo-movimentacao-cofrinho').textContent=(tipo==='Deposito'?'Guardar dinheiro em ':'Retirar dinheiro de ')+(state.cofrinhos.find(x=>x.id===id)?.nome||'cofrinho');
+    panel.scrollIntoView({behavior:'smooth',block:'nearest'});form.elements.namedItem('valor').focus();
+  }
   function renderJars(){
     const root=$('lista-cofrinhos');if(!root)return;root.replaceChildren();
-    if(!state.cofrinhos.length){root.textContent='Nenhum cofrinho cadastrado.';return;}
-    for(const x of state.cofrinhos){
-      const el=document.createElement('article');el.className='ft-wallet-item';const title=document.createElement('h3');title.textContent=x.nome;
+    const active=state.cofrinhos.filter(x=>!x.arquivado);
+    if(!active.length){const empty=document.createElement('p');empty.className='ft-jar-empty';empty.textContent='Nenhum cofrinho ainda. Crie seu primeiro objetivo!';root.append(empty);}
+    for(const x of active){
+      const el=document.createElement('article');el.className='ft-jar-card';
+      const title=document.createElement('h3');title.textContent=x.nome;
       const wallet=state.carteiras.find(w=>w.id===x.carteiraId);
-      const desc=document.createElement('p');desc.textContent=`Carteira: ${wallet?.nome||x.carteiraNome||'—'}`;
-      const saldo=document.createElement('p');saldo.className='ft-available';saldo.textContent=`Guardado: ${dinheiro(x.saldoAtual??x.saldo??x.valorAtual)}`;
-      el.append(title,desc,saldo);
-      const meta=x.valorMeta??x.meta;if(meta!=null){const m=document.createElement('small');m.textContent=`Meta: ${dinheiro(meta)}`;el.append(m);}
-      root.append(el);
+      const desc=document.createElement('p');desc.className='ft-jar-wallet';desc.textContent=`Carteira: ${wallet?.nome||x.carteiraNome||'—'}`;
+      const saldo=document.createElement('strong');saldo.className='ft-jar-balance';saldo.textContent=dinheiro(x.saldo??x.saldoAtual??x.valorAtual);
+      const caption=document.createElement('span');caption.className='ft-jar-caption';caption.textContent='Guardado';
+      el.append(title,desc,caption,saldo);
+      const meta=Number(x.valorObjetivo??x.valorMeta??x.meta??0),atual=Number(x.saldo??x.saldoAtual??x.valorAtual??0);
+      const info=document.createElement('p');info.className='ft-jar-progress-label';
+      if(meta>0){const progresso=Math.min(100,Math.max(0,atual/meta*100));info.textContent=`${progresso.toFixed(0)}% de ${dinheiro(meta)}`;const track=document.createElement('div');track.className='feature-progress';const fill=document.createElement('span');fill.style.width=`${progresso}%`;track.append(fill);el.append(info,track);}
+      else {info.textContent='Sem objetivo definido';el.append(info);}
+      const actions=document.createElement('div');actions.className='ft-jar-actions';
+      actions.append(button('Guardar','primary',()=>abrirMovimentacao(x.id,'Deposito')),button('Retirar','',()=>abrirMovimentacao(x.id,'Retirada')));
+      el.append(actions);root.append(el);
     }
   }
   async function load(){
@@ -121,15 +136,18 @@
     message('carteiras-mensagem','Transferência realizada.');
   });
   form('form-cofrinho',async el=>{
-    const d=new FormData(el);await api('/cofrinhos',{method:'POST',body:JSON.stringify({nome:d.get('nome'),carteiraId:Number(d.get('carteiraId')),valorMeta:d.get('valorMeta')?Number(d.get('valorMeta')):null})});
-    message('cofrinhos-mensagem','Cofrinho criado.');
+    const d=new FormData(el);await api('/cofrinhos',{method:'POST',body:JSON.stringify({nome:d.get('nome'),carteiraId:Number(d.get('carteiraId')),valorObjetivo:d.get('valorObjetivo')?Number(d.get('valorObjetivo')):null})});
+    message('cofrinhos-mensagem','Cofrinho criado.');$('painel-criar-cofrinho').hidden=true;
   });
   form('form-movimentacao-cofrinho',async el=>{
     const d=new FormData(el),id=Number(d.get('cofrinhoId')),tipo=d.get('tipo'),valor=Number(d.get('valor'));
     if(!id||!Number.isFinite(valor)||valor<=0)throw Error('Informe cofrinho e valor válido.');
     if(!confirm(`${tipo==='Deposito'?'Guardar':'Retirar'} ${dinheiro(valor)}?`))return;
     await api(`/cofrinhos/${id}/${tipo==='Deposito'?'depositar':'retirar'}`,{method:'POST',body:JSON.stringify({valor})});
-    message('cofrinhos-mensagem','Cofrinho atualizado.');
+    message('cofrinhos-mensagem','Cofrinho atualizado.');$('painel-movimentar-cofrinho').hidden=true;
   });
+  $('abrir-criar-cofrinho')?.addEventListener('click',()=>{$('painel-criar-cofrinho').hidden=false;$('painel-criar-cofrinho').scrollIntoView({behavior:'smooth',block:'nearest'});});
+  $('fechar-criar-cofrinho')?.addEventListener('click',()=>{$('painel-criar-cofrinho').hidden=true;});
+  $('fechar-movimentacao-cofrinho')?.addEventListener('click',()=>{$('painel-movimentar-cofrinho').hidden=true;});
   if(token)load();
 })();
