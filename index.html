@@ -220,6 +220,9 @@
 
           <span class="nav-label">Histórico</span>
         </button>
+        <button class="nav-btn" type="button" onclick="trocarTela('importacao')" aria-label="Importar Excel"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 3v12m-4-4 4 4 4-4M4 17v3h16v-3"/></svg><span class="nav-label">Importar Excel</span></button>
+        <button class="nav-btn" type="button" onclick="trocarTela('carteiras')" aria-label="Carteiras"><svg class="nav-icon" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="15" rx="3"/><path d="M2 9h20M16 15h3"/></svg><span class="nav-label">Carteiras</span></button>
+        <button class="nav-btn" type="button" onclick="trocarTela('cofrinhos')" aria-label="Cofrinhos"><svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="5"/><path d="M8 8V5h8v3M12 12v4"/></svg><span class="nav-label">Cofrinhos</span></button>
         <button class="nav-btn nav-feedback" type="button" onclick="trocarTela('feedback')" aria-label="Feedback"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H5l-2 2v-9.5A7.5 7.5 0 0 1 10.5 4H13a7 7 0 0 1 7 7.5Z"/><path d="M8 11h8M8 14h5"/></svg><span class="nav-label">Feedback</span></button>
       </nav>
 
@@ -286,6 +289,13 @@
               </select>
             </div>
 
+            <div class="filter-field">
+              <label for="filtro-carteira">Carteira</label>
+              <select id="filtro-carteira" onchange="atualizarDados()">
+                <option value="TODAS">Todas as carteiras</option>
+              </select>
+            </div>
+
             <div class="filter-field filter-date-field" id="campo-data-inicio" hidden>
               <label for="filtro-data-inicio">Data inicial</label>
               <input type="date" id="filtro-data-inicio" onchange="atualizarDados()">
@@ -340,6 +350,12 @@
           </div>
         </div>
 
+
+        <!-- Saldos reais da API: total = disponível + reservado -->
+        <div class="ft-dashboard-balances" aria-label="Detalhamento do saldo das carteiras">
+          <div class="ft-dashboard-balance"><span>Saldo disponível</span><strong id="dash-disponivel">—</strong></div>
+          <div class="ft-dashboard-balance"><span>Reservado nos cofrinhos</span><strong id="dash-reservado">—</strong></div>
+        </div>
 
         <!-- EVOLUÇÃO DO SALDO -->
         <div class="charts-row margin-top">
@@ -494,6 +510,7 @@
 
           </div>
 
+          <div class="form-group"><label for="rec-carteira">Carteira</label><select id="rec-carteira" required><option value="">Carregando carteiras...</option></select></div>
           <button type="submit" class="btn btn-green">
             Salvar Receita
           </button>
@@ -571,6 +588,7 @@
 
           </div>
 
+          <div class="form-group"><label for="desp-carteira">Carteira</label><select id="desp-carteira" required><option value="">Carregando carteiras...</option></select></div>
           <button type="submit" class="btn btn-red">
             Salvar Despesa
           </button>
@@ -655,6 +673,73 @@
         </div>
         <div id="lista-orcamentos" class="feature-list"></div>
       </section>
+      <!-- CARTEIRAS -->
+      <section id="tela-carteiras" class="tela">
+        <header class="page-header"><div><span class="eyebrow">CONTAS E SALDOS</span><h1>Minhas carteiras</h1><p class="subtitle">Acompanhe seu saldo disponível e reservado por conta.</p></div></header>
+        <div class="ft-wallet-totals" id="carteiras-totais"></div>
+        <div class="feature-list margin-top" id="lista-carteiras"></div>
+        <p id="carteiras-mensagem" class="feature-message" role="status"></p>
+        <div class="ft-forms-grid margin-top">
+          <div class="widget-card feature-card"><h3>Nova carteira</h3>
+            <form id="form-carteira" class="ft-stack-form">
+              <label>Nome<input name="nome" maxlength="100" required placeholder="Ex.: Banco Inter"></label>
+              <label>Saldo inicial (R$)<input name="saldoInicial" type="number" step="0.01" min="0" value="0" required></label>
+              <button type="submit" class="feature-primary">Criar carteira</button>
+            </form>
+          </div>
+          <div class="widget-card feature-card"><h3>Transferir entre carteiras</h3>
+            <form id="form-transferencia" class="ft-stack-form">
+              <label>Origem<select name="carteiraOrigemId" required></select></label>
+              <label>Destino<select name="carteiraDestinoId" required></select></label>
+              <label>Valor (R$)<input name="valor" type="number" step="0.01" min="0.01" required></label>
+              <label>Descrição<input name="descricao" placeholder="Opcional"></label>
+              <button type="submit" class="feature-primary">Transferir</button>
+            </form>
+          </div>
+        </div>
+      </section>
+      <!-- COFRINHOS -->
+      <section id="tela-cofrinhos" class="tela">
+        <header class="page-header"><div><span class="eyebrow">DINHEIRO RESERVADO</span><h1>Meus cofrinhos</h1><p class="subtitle">Separe dinheiro para seus objetivos sem perder o controle das carteiras.</p></div></header>
+        <div class="feature-list" id="lista-cofrinhos"></div>
+        <p id="cofrinhos-mensagem" class="feature-message" role="status"></p>
+        <div class="ft-forms-grid margin-top">
+          <div class="widget-card feature-card"><h3>Criar cofrinho</h3>
+            <form id="form-cofrinho" class="ft-stack-form">
+              <label>Nome<input name="nome" required maxlength="100" placeholder="Ex.: Viagem"></label>
+              <label>Carteira<select name="carteiraId" required></select></label>
+              <label>Meta (R$) — opcional<input name="valorMeta" type="number" step="0.01" min="0"></label>
+              <button type="submit" class="feature-primary">Criar cofrinho</button>
+            </form>
+          </div>
+          <div class="widget-card feature-card"><h3>Movimentar cofrinho</h3>
+            <form id="form-movimentacao-cofrinho" class="ft-stack-form">
+              <label>Cofrinho<select name="cofrinhoId" required></select></label>
+              <label>Operação<select name="tipo"><option value="Deposito">Guardar dinheiro</option><option value="Retirada">Retirar dinheiro</option></select></label>
+              <label>Valor (R$)<input name="valor" type="number" min="0.01" step="0.01" required></label>
+              <button type="submit" class="feature-primary">Confirmar movimentação</button>
+            </form>
+          </div>
+        </div>
+      </section>
+      <section id="tela-importacao" class="tela">
+        <header class="page-header"><div><span class="eyebrow">AUTOMAÇÃO FINANCEIRA</span><h1>Importação inteligente</h1><p class="subtitle">Importe Excel ou CSV com colunas em qualquer ordem. Confira o mapeamento antes de salvar.</p></div></header>
+        <div class="premium-card margin-top import-panel">
+          <div class="form-group"><label for="import-arquivo">Planilha (.xlsx, .xls, .csv)</label><input type="file" id="import-arquivo" accept=".xlsx,.xls,.csv" /></div>
+          <div class="import-grid"><div class="form-group"><label for="import-aba">Aba da planilha</label><select id="import-aba" disabled></select></div><div class="form-group"><label for="import-carteira">Carteira de destino</label><select id="import-carteira"></select></div></div>
+          <p id="import-status" class="feature-message" role="status" aria-live="polite">Escolha um arquivo para começar.</p>
+          <div id="import-config" hidden>
+            <h3>Associação automática de colunas</h3><p class="subtitle">Revise os campos encontrados. Colunas extras podem ser ignoradas.</p>
+            <div id="import-mapeamento" class="import-grid"></div>
+            <div class="import-grid"><div class="form-group"><label for="import-tipo-padrao">Quando não houver tipo nem sinal</label><select id="import-tipo-padrao"><option value="">Solicitar revisão (recomendado)</option><option value="Despesa">Considerar despesa</option><option value="Receita">Considerar receita</option></select></div><div class="form-group"><label for="import-categoria-padrao">Categoria padrão</label><input id="import-categoria-padrao" value="Outros" maxlength="100"></div></div>
+            <button class="btn btn-green" type="button" id="import-analisar">Analisar lançamentos</button>
+          </div>
+          <div id="import-previa" hidden><h3 class="margin-top">Pré-visualização</h3><p id="import-resumo" class="subtitle"></p>
+            <div class="table-responsive"><table><thead><tr><th>Importar</th><th>Linha</th><th>Data</th><th>Tipo</th><th>Categoria</th><th>Descrição</th><th>Valor</th><th>Situação</th></tr></thead><tbody id="import-linhas"></tbody></table></div>
+            <div class="import-actions"><button type="button" class="btn btn-green" id="import-confirmar">Confirmar importação</button><span id="import-progresso" role="status"></span></div>
+          </div>
+        </div>
+      </section>
       <section id="tela-feedback" class="tela">
         <header class="page-header"><div><span class="eyebrow">SUA OPINIÃO IMPORTA</span><h1>Envie seu feedback</h1><p>Compartilhe ideias, relate problemas ou conte o que você gostou no FinanceTech.</p></div></header>
         <div class="widget-card feature-card feedback-card">
@@ -677,7 +762,10 @@
 
 
   <!-- JAVASCRIPT -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="app.js"></script>
+  <script src="importacao.js"></script>
+  <script src="carteiras.js"></script>
 
 </body>
 </html>

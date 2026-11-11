@@ -1,5 +1,5 @@
 
-const API_BASE = 'https://financetech.onrender.com/api';
+const API_BASE = 'http://localhost:8080/api';
 const API_URL = `${API_BASE}/transacoes`;
 const AUTH_URL = `${API_BASE}/auth`;
 
@@ -39,6 +39,7 @@ function mostrarAplicativo() {
     `Olá, ${usuarioLogado.nome}`;
 
   buscarDadosNoBanco();
+  window.carregarFinanceiroCarteiras?.();
 }
 
 
@@ -118,6 +119,7 @@ function sairConta() {
   token = null;
   usuarioLogado = null;
   movimentacoes = [];
+  window.invalidarSaldoConsolidado?.();
 
   if (myLineChart) myLineChart.destroy();
   if (myDoughnutDespesaChart) myDoughnutDespesaChart.destroy();
@@ -149,6 +151,7 @@ function trocarTela(nomeTela) {
   });
 
   atualizarDados();
+  if (nomeTela === 'carteiras' || nomeTela === 'cofrinhos') window.carregarFinanceiroCarteiras?.(nomeTela);
   if (nomeTela === 'metas') carregarMetas();
   if (nomeTela === 'orcamentos') carregarOrcamentos();
   if (nomeTela === 'feedback') mensagemFeature('feedback-mensagem', '');
@@ -184,6 +187,7 @@ async function buscarDadosNoBanco() {
       console.log('Dados recebidos:', movimentacoes);
 
       renderizarTela();
+      window.carregarFinanceiroCarteiras?.();
       if (document.getElementById("tela-orcamentos")?.classList.contains("active")) carregarOrcamentos();
 
     } else {
@@ -258,7 +262,8 @@ async function salvarMovimentacao(e) {
       valor: valor,
       data: document.getElementById(`${prefixo}-data`).value,
       categoria: document.getElementById(`${prefixo}-categoria`).value,
-      descricao: document.getElementById(`${prefixo}-desc`).value || 'Sem descrição'
+      descricao: document.getElementById(`${prefixo}-desc`).value || 'Sem descrição',
+      carteiraId: Number(document.getElementById(`${prefixo}-carteira`)?.value || 0)
     };
 
     const headers = {
@@ -297,6 +302,7 @@ async function salvarMovimentacao(e) {
     }
 
     formulario.reset();
+    window.carregarFinanceiroCarteiras?.();
 
     if (idInput) {
       idInput.value = '';
@@ -384,6 +390,8 @@ function editarMovimentacao(id) {
   if (dataEl) dataEl.value = dataFormatada;
   if (catEl) catEl.value = m.categoria || m.Categoria;
   if (descEl) descEl.value = m.descricao || m.Descricao;
+  const carteiraEl = document.getElementById(`${prefixo}-carteira`);
+  if (carteiraEl) carteiraEl.value = String(m.carteiraId ?? m.CarteiraId ?? '');
 
   trocarTela(tipoReal.toLowerCase());
 }
@@ -449,6 +457,7 @@ function alterarPeriodo() {
 function limparFiltros() {
   document.getElementById('filtro-periodo').value = 'todos';
   document.getElementById('filtro-categoria').value = 'TODAS';
+  document.getElementById('filtro-carteira').value = 'TODAS';
   document.getElementById('filtro-data-inicio').value = '';
   document.getElementById('filtro-data-fim').value = '';
   document.getElementById('campo-data-inicio').hidden = true;
@@ -477,8 +486,24 @@ function atualizarCategoriasFiltro() {
   select.value = categorias.includes(categoriaAtual) ? categoriaAtual : 'TODAS';
 }
 
+// O filtro de carteira é independente do período e da categoria.
+// As opções são fornecidas pela mesma API que alimenta os saldos.
+function atualizarCarteirasFiltro(carteiras) {
+  const select = document.getElementById('filtro-carteira');
+  if (!select) return;
+  const anterior = select.value;
+  const lista = Array.isArray(carteiras) ? carteiras : [];
+  select.replaceChildren(new Option('Todas as carteiras', 'TODAS'));
+  lista.filter(c => !c.arquivada).forEach(c => {
+    select.add(new Option(c.nome, String(c.id)));
+  });
+  select.value = [...select.options].some(o => o.value === anterior) ? anterior : 'TODAS';
+  atualizarDados();
+}
+
 function obterMovimentacoesFiltradas() {
   const filtroCat = document.getElementById('filtro-categoria')?.value || 'TODAS';
+  const filtroCarteira = document.getElementById('filtro-carteira')?.value || 'TODAS';
   const dataInicio = document.getElementById('filtro-data-inicio')?.value || '';
   const dataFim = document.getElementById('filtro-data-fim')?.value || '';
 
@@ -490,8 +515,10 @@ function obterMovimentacoesFiltradas() {
     const passaInicio = !dataInicio || dataTransacao >= dataInicio;
     const passaFim = !dataFim || dataTransacao <= dataFim;
     const passaCategoria = filtroCat === 'TODAS' || categoriaReal === filtroCat;
+    const idCarteira = m.carteiraId ?? m.CarteiraId;
+    const passaCarteira = filtroCarteira === 'TODAS' || String(idCarteira ?? '') === filtroCarteira;
 
-    return passaInicio && passaFim && passaCategoria;
+    return passaInicio && passaFim && passaCategoria && passaCarteira;
   });
 }
 
@@ -584,6 +611,37 @@ function renderizarHistorico() {
   });
 }
 
+// Saldos consolidados, atualizados exclusivamente pelos dados da API de carteiras.
+let carteirasDashboard = null;
+function atualizarSaldosDashboard() {
+  const total = document.getElementById('dash-saldo');
+  const disponivel = document.getElementById('dash-disponivel');
+  const reservado = document.getElementById('dash-reservado');
+  const formatar = valor => Number(valor).toLocaleString('pt-BR', {style:'currency',currency:'BRL'});
+  const carteiraId = document.getElementById('filtro-carteira')?.value || 'TODAS';
+  if (!carteirasDashboard) {
+    if (total) total.textContent = '—';
+    if (disponivel) disponivel.textContent = '—';
+    if (reservado) reservado.textContent = '—';
+    return;
+  }
+  const selecionadas = carteirasDashboard.filter(c => !c.arquivada &&
+    (carteiraId === 'TODAS' || String(c.id) === carteiraId));
+  const somar = campo => selecionadas.reduce((s,c) => s + Number(c[campo] ?? 0), 0);
+  if (total) total.textContent = formatar(somar('saldoAtual'));
+  if (disponivel) disponivel.textContent = formatar(somar('saldoDisponivel'));
+  if (reservado) reservado.textContent = formatar(somar('saldoReservado'));
+}
+window.atualizarSaldoConsolidado = function(carteiras) {
+  carteirasDashboard = Array.isArray(carteiras) ? carteiras : [];
+  atualizarCarteirasFiltro(carteirasDashboard);
+  atualizarSaldosDashboard();
+};
+window.invalidarSaldoConsolidado = function() {
+  carteirasDashboard = null;
+  atualizarSaldosDashboard();
+};
+
 // ==============================
 // RENDERIZAR DASHBOARD E HISTÓRICO
 // ==============================
@@ -661,7 +719,9 @@ function renderizarTela() {
   });
 
   const saldo = recTotal - despTotal;
-  document.getElementById('dash-saldo').innerText = `R$ ${saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+  // Saldo real vem de /api/carteiras (inclui saldo inicial, transferências e reservas).
+  // Não sobrescrever com o resultado filtrado de receitas - despesas.
+  atualizarSaldosDashboard();
   document.getElementById('dash-receita').innerText = `R$ ${recTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
   document.getElementById('dash-despesa').innerText = `R$ ${despTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
 
@@ -697,10 +757,12 @@ function renderizarTela() {
   });
 
   const categoriaSelecionada = document.getElementById('filtro-categoria')?.value || 'TODAS';
+  const carteiraSelecionada = document.getElementById('filtro-carteira');
   const dataInicio = document.getElementById('filtro-data-inicio')?.value;
   const dataFim = document.getElementById('filtro-data-fim')?.value;
   let resumo = `${movFiltradas.length} movimentação(ões) encontrada(s)`;
   if (categoriaSelecionada !== 'TODAS') resumo += ` • ${categoriaSelecionada}`;
+  if (carteiraSelecionada?.value !== 'TODAS') resumo += ` • Carteira: ${carteiraSelecionada.selectedOptions[0]?.textContent || 'selecionada'}`;
   if (dataInicio || dataFim) resumo += ` • ${dataInicio ? dataInicio.split('-').reverse().join('/') : 'Início'} até ${dataFim ? dataFim.split('-').reverse().join('/') : 'hoje'}`;
   document.getElementById('filtro-resumo').textContent = resumo;
 

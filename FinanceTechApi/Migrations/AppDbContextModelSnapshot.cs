@@ -22,6 +22,87 @@ namespace FinanceTechApi.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("FinanceTechApi.Models.Carteira", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Arquivada")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("CriadaEm")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<decimal>("SaldoInicial")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("Carteiras");
+                });
+
+            modelBuilder.Entity("FinanceTechApi.Models.Cofrinho", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Arquivado")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("CarteiraId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal?>("ValorObjetivo")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CarteiraId");
+
+                    b.HasIndex("UsuarioId", "CarteiraId");
+
+                    b.ToTable("Cofrinhos");
+                });
+
             modelBuilder.Entity("FinanceTechApi.Models.Feedback", b =>
                 {
                     b.Property<int>("Id")
@@ -85,6 +166,46 @@ namespace FinanceTechApi.Migrations
                     b.ToTable("MetasFinanceiras");
                 });
 
+            modelBuilder.Entity("FinanceTechApi.Models.MovimentacaoCofrinho", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CofrinhoId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("Data")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Valor")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CofrinhoId");
+
+                    b.HasIndex("UsuarioId", "CofrinhoId");
+
+                    b.ToTable("MovimentacoesCofrinho");
+                });
+
             modelBuilder.Entity("FinanceTechApi.Models.OrcamentoMensal", b =>
                 {
                     b.Property<int>("Id")
@@ -125,6 +246,9 @@ namespace FinanceTechApi.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("CarteiraId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Categoria")
                         .IsRequired()
                         .HasColumnType("text");
@@ -148,9 +272,53 @@ namespace FinanceTechApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UsuarioId");
+                    b.HasIndex("CarteiraId");
+
+                    b.HasIndex("UsuarioId", "CarteiraId");
 
                     b.ToTable("Transacoes");
+                });
+
+            modelBuilder.Entity("FinanceTechApi.Models.TransferenciaCarteira", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CarteiraDestinoId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CarteiraOrigemId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("Data")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Valor")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CarteiraDestinoId");
+
+                    b.HasIndex("CarteiraOrigemId");
+
+                    b.HasIndex("UsuarioId", "CarteiraDestinoId");
+
+                    b.HasIndex("UsuarioId", "CarteiraOrigemId");
+
+                    b.ToTable("TransferenciasCarteira");
                 });
 
             modelBuilder.Entity("FinanceTechApi.Models.Usuario", b =>
@@ -181,6 +349,30 @@ namespace FinanceTechApi.Migrations
                     b.ToTable("Usuarios");
                 });
 
+            modelBuilder.Entity("FinanceTechApi.Models.Carteira", b =>
+                {
+                    b.HasOne("FinanceTechApi.Models.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FinanceTechApi.Models.Cofrinho", b =>
+                {
+                    b.HasOne("FinanceTechApi.Models.Carteira", null)
+                        .WithMany()
+                        .HasForeignKey("CarteiraId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("FinanceTechApi.Models.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("FinanceTechApi.Models.Feedback", b =>
                 {
                     b.HasOne("FinanceTechApi.Models.Usuario", null)
@@ -199,6 +391,21 @@ namespace FinanceTechApi.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("FinanceTechApi.Models.MovimentacaoCofrinho", b =>
+                {
+                    b.HasOne("FinanceTechApi.Models.Cofrinho", null)
+                        .WithMany()
+                        .HasForeignKey("CofrinhoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("FinanceTechApi.Models.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("FinanceTechApi.Models.OrcamentoMensal", b =>
                 {
                     b.HasOne("FinanceTechApi.Models.Usuario", null)
@@ -210,6 +417,32 @@ namespace FinanceTechApi.Migrations
 
             modelBuilder.Entity("FinanceTechApi.Models.Transacao", b =>
                 {
+                    b.HasOne("FinanceTechApi.Models.Carteira", null)
+                        .WithMany()
+                        .HasForeignKey("CarteiraId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("FinanceTechApi.Models.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FinanceTechApi.Models.TransferenciaCarteira", b =>
+                {
+                    b.HasOne("FinanceTechApi.Models.Carteira", null)
+                        .WithMany()
+                        .HasForeignKey("CarteiraDestinoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("FinanceTechApi.Models.Carteira", null)
+                        .WithMany()
+                        .HasForeignKey("CarteiraOrigemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("FinanceTechApi.Models.Usuario", null)
                         .WithMany()
                         .HasForeignKey("UsuarioId")

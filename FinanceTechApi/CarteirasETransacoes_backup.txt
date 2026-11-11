@@ -1,0 +1,154 @@
+﻿
+using System;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+
+#nullable disable
+
+namespace FinanceTechApi.Migrations
+{
+    public partial class CarteirasETransacoes : Migration
+    {
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            // 1. Adiciona a carteira às transações existentes
+            migrationBuilder.AddColumn<int>(
+                name: "CarteiraId",
+                table: "Transacoes",
+                type: "integer",
+                nullable: true);
+
+            // 2. Cria a tabela de carteiras
+            migrationBuilder.CreateTable(
+                name: "Carteiras",
+                columns: table => new
+                {
+                    Id = table.Column<int>(
+                        type: "integer",
+                        nullable: false)
+                        .Annotation(
+                            "Npgsql:ValueGenerationStrategy",
+                            NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+
+                    Nome = table.Column<string>(
+                        type: "character varying(100)",
+                        maxLength: 100,
+                        nullable: false),
+
+                    Descricao = table.Column<string>(
+                        type: "character varying(500)",
+                        maxLength: 500,
+                        nullable: false),
+
+                    UsuarioId = table.Column<int>(
+                        type: "integer",
+                        nullable: false),
+
+                    SaldoInicial = table.Column<decimal>(
+                        type: "numeric(18,2)",
+                        precision: 18,
+                        scale: 2,
+                        nullable: false),
+
+                    Arquivada = table.Column<bool>(
+                        type: "boolean",
+                        nullable: false),
+
+                    CriadaEm = table.Column<DateTime>(
+                        type: "timestamp without time zone",
+                        nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Carteiras", x => x.Id);
+
+                    table.ForeignKey(
+                        name: "FK_Carteiras_Usuarios_UsuarioId",
+                        column: x => x.UsuarioId,
+                        principalTable: "Usuarios",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            // 3. Cria uma carteira Principal para cada usuário existente
+            migrationBuilder.Sql(@"
+                INSERT INTO ""Carteiras""
+                    (""Nome"", ""Descricao"", ""UsuarioId"",
+                     ""SaldoInicial"", ""Arquivada"", ""CriadaEm"")
+                SELECT
+                    'Principal',
+                    'Carteira principal do FinanceTech',
+                    u.""Id"",
+                    0,
+                    FALSE,
+                    NOW()::timestamp
+                FROM ""Usuarios"" u
+                WHERE NOT EXISTS (
+                    SELECT 1
+                    FROM ""Carteiras"" c
+                    WHERE c.""UsuarioId"" = u.""Id""
+                      AND c.""Nome"" = 'Principal'
+                );
+            ");
+
+            // 4. Vincula transações antigas à carteira Principal
+            migrationBuilder.Sql(@"
+                UPDATE ""Transacoes"" t
+                SET ""CarteiraId"" = c.""Id""
+                FROM ""Carteiras"" c
+                WHERE t.""UsuarioId"" = c.""UsuarioId""
+                  AND c.""Nome"" = 'Principal'
+                  AND t.""CarteiraId"" IS NULL;
+            ");
+
+            // 5. Índice para consultar carteiras por usuário
+            migrationBuilder.CreateIndex(
+                name: "IX_Carteiras_UsuarioId",
+                table: "Carteiras",
+                column: "UsuarioId");
+
+            // 6. Índice para consultar transações por carteira
+            migrationBuilder.CreateIndex(
+                name: "IX_Transacoes_UsuarioId_CarteiraId",
+                table: "Transacoes",
+                columns: new[] { "UsuarioId", "CarteiraId" });
+
+            // 7. Relacionamento entre transações e carteiras
+            migrationBuilder.CreateIndex(
+                name: "IX_Transacoes_CarteiraId",
+                table: "Transacoes",
+                column: "CarteiraId");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Transacoes_Carteiras_CarteiraId",
+                table: "Transacoes",
+                column: "CarteiraId",
+                principalTable: "Carteiras",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
+        }
+
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            // Remove o relacionamento antes das tabelas
+            migrationBuilder.DropForeignKey(
+                name: "FK_Transacoes_Carteiras_CarteiraId",
+                table: "Transacoes");
+
+            migrationBuilder.DropIndex(
+                name: "IX_Transacoes_UsuarioId_CarteiraId",
+                table: "Transacoes");
+
+            migrationBuilder.DropIndex(
+                name: "IX_Transacoes_CarteiraId",
+                table: "Transacoes");
+
+            migrationBuilder.DropTable(
+                name: "Carteiras");
+
+            migrationBuilder.DropColumn(
+                name: "CarteiraId",
+                table: "Transacoes");
+        }
+    }
+}
