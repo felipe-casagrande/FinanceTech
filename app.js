@@ -1,5 +1,5 @@
 
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = 'https://financetech.onrender.com/api';
 const API_URL = `${API_BASE}/transacoes`;
 const AUTH_URL = `${API_BASE}/auth`;
 
