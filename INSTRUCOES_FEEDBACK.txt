@@ -1,0 +1,23 @@
+FINANCETECH - IMPLEMENTAÇÃO DE FEEDBACK
+
+ALTERAÇÕES
+- Nova aba Feedback no menu lateral e navegação mobile.
+- POST /api/feedbacks protegido por JWT.
+- Dados armazenados exclusivamente na tabela Feedbacks do PostgreSQL/Supabase.
+- Não há envio de e-mail nem página pública de listagem de feedbacks.
+
+COMO PUBLICAR
+1. Faça backup do repositório e copie os arquivos desta pasta para seu projeto.
+2. Na pasta FinanceTechApi, rode: dotnet ef database update
+   Execute em um ambiente com ConnectionStrings__DefaultConnection configurada para o Supabase.
+   A migration 20261111193000_Feedbacks criará a tabela.
+3. Faça commit e push no GitHub.
+4. Confirme o deploy do backend no Render e a publicação do frontend no GitHub Pages.
+5. Faça login no FinanceTech, abra Feedback e envie uma mensagem de teste.
+6. No Supabase, confira a tabela public."Feedbacks".
+
+IMPORTANTE
+- Não coloque JWT ou senha do banco no repositório.
+- Caso o Render não execute migrations automaticamente, o passo 2 é obrigatório.
+- A API aceita apenas Sugestão, Problema e Elogio, com mensagem de 10 a 2000 caracteres.
+- Feedbacks não têm endpoint de consulta, para evitar exposição das mensagens a usuários comuns.

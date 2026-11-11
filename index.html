@@ -220,6 +220,7 @@
 
           <span class="nav-label">Histórico</span>
         </button>
+        <button class="nav-btn nav-feedback" type="button" onclick="trocarTela('feedback')" aria-label="Feedback"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H5l-2 2v-9.5A7.5 7.5 0 0 1 10.5 4H13a7 7 0 0 1 7 7.5Z"/><path d="M8 11h8M8 14h5"/></svg><span class="nav-label">Feedback</span></button>
       </nav>
 
     </aside>
@@ -653,6 +654,22 @@
           </form><p class="feature-message" id="orcamento-mensagem" role="status"></p>
         </div>
         <div id="lista-orcamentos" class="feature-list"></div>
+      </section>
+      <section id="tela-feedback" class="tela">
+        <header class="page-header"><div><span class="eyebrow">SUA OPINIÃO IMPORTA</span><h1>Envie seu feedback</h1><p>Compartilhe ideias, relate problemas ou conte o que você gostou no FinanceTech.</p></div></header>
+        <div class="widget-card feature-card feedback-card">
+          <h3>Ajude a melhorar o FinanceTech</h3>
+          <form id="form-feedback" class="feature-form">
+            <label>Tipo de feedback
+              <select name="tipo" required><option value="Sugestão">Sugestão de melhoria</option><option value="Problema">Reportar problema</option><option value="Elogio">Elogio</option></select>
+            </label>
+            <label>Sua mensagem
+              <textarea name="mensagem" minlength="10" maxlength="2000" rows="6" required placeholder="Escreva sua ideia ou conte o que podemos melhorar..."></textarea>
+            </label>
+            <button type="submit" class="feature-primary">Enviar feedback</button>
+          </form>
+          <p class="feature-message" id="feedback-mensagem" role="status" aria-live="polite"></p>
+        </div>
       </section>
     </main>
 

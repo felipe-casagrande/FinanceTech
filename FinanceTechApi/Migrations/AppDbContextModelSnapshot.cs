@@ -22,6 +22,19 @@ namespace FinanceTechApi.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("FinanceTechApi.Models.Feedback", b =>
+                {
+                    b.Property<int>("Id").ValueGeneratedOnAdd().HasColumnType("integer");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<DateTime>("CriadoEm").HasColumnType("timestamp with time zone");
+                    b.Property<string>("Mensagem").IsRequired().HasMaxLength(2000).HasColumnType("character varying(2000)");
+                    b.Property<string>("Tipo").IsRequired().HasMaxLength(30).HasColumnType("character varying(30)");
+                    b.Property<int>("UsuarioId").HasColumnType("integer");
+                    b.HasKey("Id");
+                    b.HasIndex("UsuarioId");
+                    b.ToTable("Feedbacks");
+                });
+
             modelBuilder.Entity("FinanceTechApi.Models.MetaFinanceira", b =>
                 {
                     b.Property<int>("Id")
@@ -148,6 +161,15 @@ namespace FinanceTechApi.Migrations
                         .IsUnique();
 
                     b.ToTable("Usuarios");
+                });
+
+            modelBuilder.Entity("FinanceTechApi.Models.Feedback", b =>
+                {
+                    b.HasOne("FinanceTechApi.Models.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("FinanceTechApi.Models.MetaFinanceira", b =>

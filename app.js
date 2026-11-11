@@ -151,6 +151,7 @@ function trocarTela(nomeTela) {
   atualizarDados();
   if (nomeTela === 'metas') carregarMetas();
   if (nomeTela === 'orcamentos') carregarOrcamentos();
+  if (nomeTela === 'feedback') mensagemFeature('feedback-mensagem', '');
 }
 
 
@@ -1009,6 +1010,36 @@ function exportarHistoricoCSV() {
   const link = document.createElement('a'); link.href = url; link.download = `financetech-historico-${new Date().toISOString().slice(0,10)}.csv`;
   document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+
+
+// ==============================
+// FEEDBACK DOS USUÁRIOS
+// ==============================
+const API_FEEDBACK = `${API_BASE}/feedbacks`;
+document.getElementById('form-feedback')?.addEventListener('submit', async function (evento) {
+  evento.preventDefault();
+  if (this.dataset.sending === 'true') return;
+  const botao = this.querySelector('button[type="submit"]');
+  const tipo = this.elements.tipo.value;
+  const mensagem = this.elements.mensagem.value.trim();
+  if (mensagem.length < 10 || mensagem.length > 2000) {
+    mensagemFeature('feedback-mensagem', 'Escreva uma mensagem entre 10 e 2000 caracteres.');
+    return;
+  }
+  this.dataset.sending = 'true';
+  botao.disabled = true;
+  mensagemFeature('feedback-mensagem', 'Enviando feedback...');
+  try {
+    await requisicaoFinanceira(API_FEEDBACK, { method: 'POST', body: JSON.stringify({ tipo, mensagem }) });
+    this.reset();
+    mensagemFeature('feedback-mensagem', 'Feedback enviado com sucesso! Obrigado por contribuir.');
+  } catch (erro) {
+    mensagemFeature('feedback-mensagem', `Não foi possível enviar: ${erro.message}`);
+  } finally {
+    this.dataset.sending = 'false';
+    botao.disabled = false;
+  }
+});
 
 // ==============================
 // INICIALIZAÇÃO

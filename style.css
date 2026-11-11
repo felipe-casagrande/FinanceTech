@@ -1227,3 +1227,14 @@ body:has(.auth-container:not([hidden])) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* Feedback: formulário integrado ao tema do FinanceTech */
+.feedback-card { max-width: 760px; }
+.feedback-card .feature-form { display: flex; flex-direction: column; align-items: stretch; gap: 18px; }
+.feedback-card .feature-form label { display: flex; flex-direction: column; gap: 9px; width: 100%; }
+.feedback-card select, .feedback-card textarea { width: 100%; min-width: 0; box-sizing: border-box; padding: 13px 15px; border: 1px solid #294768; border-radius: 11px; background: #10233d; color: #eff7ff; font: inherit; }
+.feedback-card textarea { resize: vertical; min-height: 145px; line-height: 1.55; }
+.feedback-card select:focus-visible, .feedback-card textarea:focus-visible { outline: 2px solid #38bdf8; outline-offset: 2px; }
+.feedback-card .feature-primary { align-self: flex-start; }
+@media (max-width: 900px) { #app-container .sidebar nav { grid-template-columns: repeat(7, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .feedback-card .feature-primary { width: 100%; } #app-container .nav-btn { font-size: clamp(.48rem,1.5vw,.62rem); } }
