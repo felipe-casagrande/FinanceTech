@@ -24,14 +24,32 @@ namespace FinanceTechApi.Migrations
 
             modelBuilder.Entity("FinanceTechApi.Models.Feedback", b =>
                 {
-                    b.Property<int>("Id").ValueGeneratedOnAdd().HasColumnType("integer");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-                    b.Property<DateTime>("CriadoEm").HasColumnType("timestamp with time zone");
-                    b.Property<string>("Mensagem").IsRequired().HasMaxLength(2000).HasColumnType("character varying(2000)");
-                    b.Property<string>("Tipo").IsRequired().HasMaxLength(30).HasColumnType("character varying(30)");
-                    b.Property<int>("UsuarioId").HasColumnType("integer");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Mensagem")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
+
                     b.HasIndex("UsuarioId");
+
                     b.ToTable("Feedbacks");
                 });
 
